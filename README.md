@@ -40,7 +40,7 @@ Proyek Gabara dibangun menggunakan teknologi berikut:
 Untuk berkontribusi pada proyek ini, Anda dapat melakukan fork repository terlebih dahulu. Berikut adalah langkah-langkahnya:
 
 1. **Kunjungi Repository di GitHub**
-    - Buka halaman repository Gabara di GitHub: `<URL_REPOSITORY_ANDA>`.
+    - Buka halaman repository Gabara di GitHub: `https://github.com/irsyamokta/gabara`.
 2. **Fork Repository**
     - Klik tombol **Fork** di pojok kanan atas halaman repository.
     - Pilih akun atau organisasi tempat Anda ingin menyimpan fork.
