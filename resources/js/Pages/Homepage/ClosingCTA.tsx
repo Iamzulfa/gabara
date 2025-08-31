@@ -29,7 +29,7 @@ export default function CTA() {
                 <img
                     src={ctaImage}
                     alt="CTA Illustration"
-                    className="w-[480px] sm:w-[600px] md:w-[720px] lg:w-[900px] xl:w-[1100px] object-contain"
+                    className="w-[480px] sm:w-[600px] md:w-[720px] lg:w-[900px] xl:w-[1400px] object-contain"
                 />
             </div>
         </section>

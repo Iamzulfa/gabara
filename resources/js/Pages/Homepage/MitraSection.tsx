@@ -84,7 +84,18 @@ export default function PKBMCard() {
 
                 <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {pkbm.map((p, idx) => (
-                        <PKBMItem key={idx} {...p} />
+                        <div
+                            key={idx}
+                            className={`
+                                ${
+                                    idx === pkbm.length - 1
+                                        ? "sm:col-span-2 sm:justify-self-center lg:col-span-1 lg:justify-self-auto"
+                                        : ""
+                                }
+                            `}
+                        >
+                            <PKBMItem {...p} />
+                        </div>
                     ))}
                 </div>
             </div>

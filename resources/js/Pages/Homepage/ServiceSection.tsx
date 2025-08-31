@@ -5,7 +5,6 @@ import packetcIcon from "../../../assets/images/PacketC.png";
 import community from "../../../assets/images/Community.png";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/Components/ui/card";
-import { cn } from "@/lib/utils";
 
 type Props = {
     name: string;
@@ -18,7 +17,9 @@ function FeatureItem({ name, text, imageSrc }: Props) {
         <Card className="shadow-md rounded-2xl border border-slate-200 hover:shadow-lg transition">
             <CardHeader className="flex flex-col items-center">
                 <img src={imageSrc} alt={name} className="w-16 h-16 mb-4" />
-                <CardTitle className="text-lg font-semibold">{name}</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-800">
+                    {name}
+                </CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-slate-600 text-sm text-center leading-relaxed">
@@ -56,9 +57,22 @@ export default function FeatureCard() {
     return (
         <section
             id="features"
-            className="container mx-auto px-6 py-16 text-center"
+            className="container mx-auto px-8 py-16 text-center"
         >
-            <h2 className="text-3xl font-bold">Fitur Gabara</h2>
+            {/* Heading */}
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900">
+                Kenapa Harus <span className="text-sky-600">Gabara?</span>
+            </h2>
+
+            {/* Paragraph */}
+            <p className="mt-3 sm:mt-4 text-slate-500 text-base md:text-lg max-w-8xl mx-auto leading-relaxed">
+                Banyak anak dan orang tua di Banjarnegara harus berhenti sekolah
+                karena biaya, jarak, atau keterbatasan waktu. <br /> Gabara
+                hadir dengan cara belajar yang fleksibel dan mudah diakses agar
+                semua orang tetap bisa menyelesaikan pendidikannya.
+            </p>
+
+            {/* Cards */}
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {features.map((f, i) => (
                     <FeatureItem key={i} {...f} />
