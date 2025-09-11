@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import alumni1 from "../../../assets/images/Testimonial-Image.png";
-import alumni2 from "../../../assets/images/Testimonial-Image.png";
-import alumni3 from "../../../assets/images/Testimonial-Image.png";
+import alumni2 from "../../../assets/images/Joule.png";
+import alumni3 from "../../../assets/images/Maulana.png";
 import Quotes from "../../../assets/images/Quotation.png";
 
 import Button from "@/Components/ui/button/Button";
@@ -23,13 +23,13 @@ const TestimonialsSection: React.FC = () => {
             avatarUrl: alumni1,
         },
         {
-            name: "Budi Santoso",
+            name: "Zulfa Mustafa A.I",
             text: "Materinya mudah dipahami dan sangat membantu saya dalam belajar mandiri.",
             avatarUrl: alumni2,
         },
         {
-            name: "Ani Lestari",
-            text: "Mentor Gabara sangat ramah dan selalu mendukung saya dalam belajar.",
+            name: "Maulana Halin",
+            text: "Ahlele Ahlelas.",
             avatarUrl: alumni3,
         },
     ];
@@ -66,22 +66,24 @@ const TestimonialsSection: React.FC = () => {
                         />
                     </div>
 
-                    {/* Teks + Button */}
-                    <div className="lg:w-2/3 relative text-left">
-                        <img
-                            src={Quotes}
-                            alt="Quotes"
-                            className="w-10 h-10 mb-4 opacity-60"
-                        />
-                        <p className="text-base md:text-lg leading-relaxed text-slate-700">
-                            {testimonials[index].text}
-                        </p>
-                        <h4 className="text-sky-600 text-lg md:text-xl font-semibold mt-6">
-                            {testimonials[index].name}
-                        </h4>
+                    <div className="w-full lg:w-2/3 flex flex-col text-left relative min-h-[280px]">
+                        {/* Teks */}
+                        <div>
+                            <img
+                                src={Quotes}
+                                alt="Quotes"
+                                className="w-10 h-10 mb-4 opacity-60"
+                            />
+                            <p className="text-base md:text-lg leading-relaxed text-slate-700">
+                                {testimonials[index].text}
+                            </p>
+                            <h4 className="text-sky-600 text-lg md:text-xl font-semibold mt-6">
+                                {testimonials[index].name}
+                            </h4>
+                        </div>
 
-                        {/* Navigasi tombol */}
-                        <div className="mt-6 flex gap-4 justify-center lg:justify-end">
+                        {/* Navigasi tombol → fix di bawah */}
+                        <div className="absolute bottom-0 right-0 flex gap-4">
                             <Button
                                 variant="circle-outline"
                                 size="circle-lg"
@@ -93,7 +95,6 @@ const TestimonialsSection: React.FC = () => {
                                     className="w-6 h-6"
                                 />
                             </Button>
-
                             <Button
                                 variant="outline"
                                 size="circle-lg"
