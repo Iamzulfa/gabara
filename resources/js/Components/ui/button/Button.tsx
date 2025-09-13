@@ -63,8 +63,7 @@ const Button: React.FC<ButtonProps> = ({
     const variantClasses = {
         default:
             "bg-[#2563EB] text-white hover:bg-[#1E40AF] disabled:bg-[#93C5FD]", // biru primary
-        outline:
-            "border-4 border-[#3480F8] text-[#2563EB] bg-white hover:bg-[#3480F8]", // outline biru
+        outline: "border-4 border-[#3480F8] text-[#2563EB] bg-white", // outline biru
         popover: "border text-[#2563EB] bg-white hover:bg-[#EFF6FF] shadow-sm", // menu popover
         danger: "bg-[#FF6D22] text-white shadow-theme-xs hover:bg-[#e65f1d] disabled:bg-[#ffb68f]", // oranye CTA
         alternate:
