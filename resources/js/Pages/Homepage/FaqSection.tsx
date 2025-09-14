@@ -1,4 +1,4 @@
-import faqImage from "../../../assets/images/faq-image.png";
+import faqImage from "../../../assets/images/image-faq.png";
 import {
     Accordion,
     AccordionContent,
