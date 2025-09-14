@@ -37,7 +37,7 @@ export default function Login({ status }: { status?: string }) {
                 <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
                     <div>
                         <div className="mb-5 sm:mb-8">
-                            <h1 className="mb-2 font-semibold text-center text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+                            <h1 className="mb-8 font-semibold text-center text-gray-900 text-4xl dark:text-white">
                                 Login
                             </h1>
                             {status && (
@@ -99,7 +99,7 @@ export default function Login({ status }: { status?: string }) {
                                 )}
                             </Button>
 
-                            <div className="flex justify-center mt-8 gap-1">
+                            <div className="flex justify-center mt-4 gap-1 text-sm">
                                 <p>Belum punya akun?</p>
                                 <Link href="/register" className="text-primary font-bold hover:underline">
                                     <span>Registrasi</span>

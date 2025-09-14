@@ -1,15 +1,26 @@
 // resources/js/Layouts/AppLayout.tsx
-import React, { ReactNode } from "react";
+import { PropsWithChildren } from "react";
 import AppNavbar from "@/Components/app/AppNavbar";
 
-type Props = {
-    children: ReactNode;
+interface AppLayoutProps {
+    className?: string;
+}
+
+const AppLayout: React.FC<PropsWithChildren<AppLayoutProps>> = ({
+    children,
+    className,
+}) => {
+    return (
+        <div className="min-h-screen flex flex-col">
+            {/* Header */}
+            <AppNavbar />
+
+            {/* Main Content */}
+            <main className={`flex-1 overflow-hidden ${className ?? ""}`}>
+                {children}
+            </main>
+        </div>
+    );
 };
 
-export default function AppLayout({ children }: Props) {
-    return (
-        <AppNavbar>
-            <main className="flex-1">{children}</main>
-        </AppNavbar>
-    );
-}
+export default AppLayout;

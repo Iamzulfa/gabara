@@ -1,26 +1,28 @@
-import AppLayout from "@/Layouts/AppLayout";
-import AppNavbar from "@/Components/app/AppNavbar";
-import Hero from "@/Pages/Homepage/HeroSection";
-import FeatureCard from "@/Pages/Homepage/ServiceSection";
-import PKBMCard from "@/Pages/Homepage/MitraSection";
-import FAQ from "@/Pages/Homepage/FaqSection";
-import TestimonialsSection from "@/Pages/Homepage/TestimoniSection";
-import Footer from "@/Pages/Homepage/Footer";
-import CTA from "@/Pages/Homepage/ClosingCTA";
 import { Head } from "@inertiajs/react";
+
+import AppLayout from "@/Layouts/AppLayout";
+
+import AppFooter from "@/Components/app/AppFooter";
+
+import HeroSection from "@/Pages/Homepage/HeroSection";
+import ServiceSection from "@/Pages/Homepage/ServiceSection";
+import MitraSection from "@/Pages/Homepage/MitraSection";
+import FaqSection from "@/Pages/Homepage/FaqSection";
+import TestimonialsSection from "@/Pages/Homepage/TestimoniSection";
+import CTASection from "@/Pages/Homepage/CTASection";
 
 export default function Home() {
     return (
         <>
             <AppLayout>
-                <Head title="Gabara - Belajar Tanpa Batas" />
-                <Hero />
-                <FeatureCard />
+                <Head title="Gabara" />
+                <HeroSection />
+                <ServiceSection />
                 <TestimonialsSection />
-                <PKBMCard />
-                <FAQ />
-                <CTA />
-                <Footer />
+                <MitraSection />
+                <FaqSection />
+                <CTASection />
+                <AppFooter />
             </AppLayout>
         </>
     );
