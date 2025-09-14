@@ -48,9 +48,9 @@ export default function Register() {
         <>
             <Head title="Registrasi" />
 
-            <div className="flex flex-col flex-1 min-h-screen">
-                <div className="flex flex-col justify-center flex-1 w-full max-w-md px-6 mx-auto">
-                    <h1 className="mb-8 font-semibold text-center text-gray-900 text-2xl dark:text-white">
+            <div className="flex flex-col flex-1 mt-32 sm:mt-0">
+                <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
+                    <h1 className="mb-8 font-semibold text-center text-gray-900 text-4xl dark:text-white">
                         Registrasi
                     </h1>
 
@@ -166,7 +166,7 @@ export default function Register() {
                             )}
                         </Button>
 
-                        <div className="flex justify-center mt-4 gap-1 text-sm">
+                        <div className="flex justify-center mt-4 gap-1 text-sm mb-6 sm:mb-0">
                             <p>Sudah punya akun?</p>
                             <Link href="/login" className="text-primary font-bold hover:underline">
                                 Login

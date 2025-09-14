@@ -1,82 +1,64 @@
-import React from "react";
 import flexibleIcon from "../../../assets/images/Flexible.png";
 import directedIcon from "../../../assets/images/Directed.png";
 import packetcIcon from "../../../assets/images/PacketC.png";
 import community from "../../../assets/images/Community.png";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/Components/ui/card";
+import Card from "./Components/card/ServiceCard";
 
-type Props = {
-    name: string;
-    text: string;
-    imageSrc: string;
-};
-
-function FeatureItem({ name, text, imageSrc }: Props) {
-    return (
-        <Card className="shadow-md rounded-2xl border border-slate-200 hover:shadow-lg transition">
-            <CardHeader className="flex flex-col items-center">
-                <img src={imageSrc} alt={name} className="w-16 h-16 mb-4" />
-                <CardTitle className="text-lg font-semibold text-slate-800">
-                    {name}
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-slate-600 text-sm text-center leading-relaxed">
-                    {text}
-                </p>
-            </CardContent>
-        </Card>
-    );
-}
-
-export default function FeatureCard() {
+export default function ServiceSection() {
     const features = [
         {
-            name: "Kelas Fleksibel",
-            text: "Belajar online atau tatap muka sesuai kebutuhan.",
-            imageSrc: flexibleIcon,
+            icon: flexibleIcon,
+            title: "Kelas Fleksibel",
+            description: "Belajar online atau tatap muka sesuai kebutuhan.",
         },
         {
-            name: "Bimbingan Terarah",
-            text: "Materi sesuai kurikulum ujian paket dengan tutor yang siap mendampingi.",
-            imageSrc: directedIcon,
+            icon: {
+                src: directedIcon,
+                alt: "Directed",
+            },
+            title: "Bimbingan Terarah",
+            description: "Materi sesuai kurikulum ujian paket dengan tutor yang siap mendampingi.",
         },
         {
-            name: "Persiapan Ujian",
-            text: "Latihan soal & simulasi supaya lebih siap menghadapi ujian.",
-            imageSrc: packetcIcon,
+            icon: packetcIcon,
+            title: "Persiapan Ujian",
+            description: "Latihan soal & simulasi supaya lebih siap menghadapi ujian.",
         },
         {
-            name: "Komunitas Belajar",
-            text: "Ruang untuk saling dukung antar siswa dan tutor.",
-            imageSrc: community,
+            icon: {
+                src: community,
+                alt: "Community",
+            },
+            title: "Komunitas Belajar",
+            description: "Ruang untuk saling dukung antar siswa dan tutor.",
         },
     ];
 
     return (
-        <section
-            id="features"
-            className="container mx-auto px-8 py-16 text-center"
-        >
-            {/* Heading */}
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900">
-                Kenapa Harus <span className="text-sky-600">Gabara?</span>
-            </h2>
+        <section id="features" className="py-24 px-6 lg:px-20 mt-12 md:mt-16">
+            <div className="container mx-auto">
+                {/* Heading */}
+                <div className="text-center mb-12">
+                    <h2 className="heading">
+                        Kenapa Harus <span className="text-primary">Gabara?</span>
+                    </h2>
+                    <p className="subheading lg:px-16 2xl:px-60">
+                        Banyak anak dan orang tua di Banjarnegara terhambat sekolah karena biaya, jarak, atau waktu. Gabara menawarkan cara belajar fleksibel dan mudah diakses agar pendidikan tetap bisa diselesaikan.
+                    </p>
+                </div>
 
-            {/* Paragraph */}
-            <p className="mt-3 sm:mt-4 text-slate-500 text-base md:text-lg max-w-8xl mx-auto leading-relaxed">
-                Banyak anak dan orang tua di Banjarnegara harus berhenti sekolah
-                karena biaya, jarak, atau keterbatasan waktu. <br /> Gabara
-                hadir dengan cara belajar yang fleksibel dan mudah diakses agar
-                semua orang tetap bisa menyelesaikan pendidikannya.
-            </p>
-
-            {/* Cards */}
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {features.map((f, i) => (
-                    <FeatureItem key={i} {...f} />
-                ))}
+                {/* Cards */}
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {features.map((feature, index) => (
+                        <Card
+                            key={index}
+                            icon={feature.icon}
+                            title={feature.title}
+                            description={feature.description}
+                        />
+                    ))}
+                </div>
             </div>
         </section>
     );

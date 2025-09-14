@@ -1,193 +1,156 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "@inertiajs/react";
 import Button from "@/Components/ui/button/Button";
-import {
-    NavigationMenu,
-    NavigationMenuList,
-    NavigationMenuItem,
-    NavigationMenuLink,
-} from "@/Components/ui/navigation-menu";
+import { HiMenuAlt3, HiX } from "react-icons/hi";
 
 import LogoWhite from "../../../assets/logo/logo-white.png";
 import LogoColor from "../../../assets/logo/logo-color.png";
 
-type Props = {
-    children: ReactNode;
-};
+interface NavbarProps {
+    forceSolid?: boolean;
+}
 
-export default function AppLayout({ children }: Props) {
-    const [isOpen, setIsOpen] = useState(false);
+const Navbar = ({ forceSolid = false }: NavbarProps) => {
+    const [openMenu, setOpenMenu] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
-        const onScroll = () => {
-            setScrolled(window.scrollY > 40);
-        };
-        window.addEventListener("scroll", onScroll);
-        return () => window.removeEventListener("scroll", onScroll);
-    }, []);
+        if (!forceSolid) {
+            const handleScroll = () => {
+                setScrolled(window.scrollY > 50);
+            };
+            window.addEventListener("scroll", handleScroll);
+            return () => window.removeEventListener("scroll", handleScroll);
+        } else {
+            setScrolled(true);
+        }
+    }, [forceSolid]);
+
+    const isSolid = forceSolid || scrolled;
 
     return (
-        <div className="min-h-screen flex flex-col">
-            {/* Header */}
-            <header
-                className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
-                    scrolled ? "bg-white shadow-md" : "bg-transparent"
+        <nav
+            className={`fixed top-0 left-0 w-full z-99 transition-all duration-300 ${isSolid ? "bg-white shadow" : "bg-transparent"
                 }`}
-            >
-                <div className="container mx-auto px-6 py-4 relative flex items-center justify-between">
-                    {/* Logo kiri */}
-                    <Link href="/" className="flex items-center gap-2 z-10">
-                        <img
-                            src={scrolled ? LogoColor : LogoWhite}
-                            alt="Gabara Logo"
-                            className="w-32 h-auto transition-all duration-300"
-                        />
-                    </Link>
+        >
+            <div className="flex items-center justify-between px-4 lg:px-20 py-4">
+                {/* Logo */}
+                <Link href="/" className="flex items-center">
+                    <img
+                        src={isSolid ? LogoColor : LogoWhite}
+                        alt="Logo"
+                        className="w-40 sm:w-48 transition-all duration-200"
+                    />
+                </Link>
 
-                    {/* Hamburger kanan (mobile only) */}
-                    <button
-                        className="md:hidden flex items-center justify-center w-10 h-10 z-10"
-                        onClick={() => setIsOpen(!isOpen)}
+                {/* Desktop menu */}
+                <div className="hidden lg:flex items-center gap-8">
+                    <Link
+                        href="/"
+                        className={`relative transition-colors ${isSolid ? "text-gray-900" : "text-white"}
+        hover:underline underline-offset-4`}
                     >
-                        <div className="space-y-1">
-                            <span
-                                className={`block w-6 h-0.5 ${
-                                    scrolled ? "bg-black" : "bg-white"
-                                }`}
-                            ></span>
-                            <span
-                                className={`block w-6 h-0.5 ${
-                                    scrolled ? "bg-black" : "bg-white"
-                                }`}
-                            ></span>
-                            <span
-                                className={`block w-6 h-0.5 ${
-                                    scrolled ? "bg-black" : "bg-white"
-                                }`}
-                            ></span>
-                        </div>
-                    </button>
-
-                    {/* Nav tengah (desktop only) */}
-                    <NavigationMenu className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                        <NavigationMenuList>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink asChild>
-                                    <Link
-                                        href="/"
-                                        className={
-                                            scrolled
-                                                ? "text-black/90"
-                                                : "text-white/95"
-                                        }
-                                    >
-                                        Beranda
-                                    </Link>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink asChild>
-                                    <a
-                                        href="#features"
-                                        className={
-                                            scrolled
-                                                ? "text-black/90"
-                                                : "text-white/95"
-                                        }
-                                    >
-                                        Layanan
-                                    </a>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink asChild>
-                                    <a
-                                        href="#testimonials"
-                                        className={
-                                            scrolled
-                                                ? "text-black/90"
-                                                : "text-white/95"
-                                        }
-                                    >
-                                        Testimoni
-                                    </a>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink asChild>
-                                    <a
-                                        href="#mitra"
-                                        className={
-                                            scrolled
-                                                ? "text-black/90"
-                                                : "text-white/95"
-                                        }
-                                    >
-                                        Mitra
-                                    </a>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink asChild>
-                                    <a
-                                        href="#faq"
-                                        className={
-                                            scrolled
-                                                ? "text-black/90"
-                                                : "text-white/95"
-                                        }
-                                    >
-                                        FAQ
-                                    </a>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                        </NavigationMenuList>
-                    </NavigationMenu>
-
-                    {/* Button Login hanya untuk desktop */}
-                    <div className="hidden md:flex items-center gap-3 z-10">
-                        <Link href={route("login")}>
-                            <Button variant="danger">Login</Button>
-                        </Link>
-                    </div>
+                        Beranda
+                    </Link>
+                    <a
+                        href="#features"
+                        className={`relative transition-colors ${isSolid ? "text-gray-900" : "text-white"}
+        hover:underline underline-offset-4`}
+                    >
+                        Layanan
+                    </a>
+                    <a
+                        href="#testimonials"
+                        className={`relative transition-colors ${isSolid ? "text-gray-900" : "text-white"}
+        hover:underline underline-offset-4`}
+                    >
+                        Testimoni
+                    </a>
+                    <a
+                        href="#mitra"
+                        className={`relative transition-colors ${isSolid ? "text-gray-900" : "text-white"}
+        hover:underline underline-offset-4`}
+                    >
+                        Mitra
+                    </a>
+                    <a
+                        href="#faq"
+                        className={`relative transition-colors ${isSolid ? "text-gray-900" : "text-white"}
+        hover:underline underline-offset-4`}
+                    >
+                        FAQ
+                    </a>
                 </div>
 
-                {/* Mobile menu */}
-                {isOpen && (
-                    <div className="md:hidden absolute top-full left-0 w-full bg-white text-black shadow-md flex flex-col items-start px-6 py-4 gap-3">
-                        <Link href="/" onClick={() => setIsOpen(false)}>
+                {/* Login button */}
+                <div className="hidden lg:flex items-center gap-3">
+                    <Link href="/login">
+                        <Button variant="alternate" size="xs">Login</Button>
+                    </Link>
+                </div>
+
+                {/* Mobile menu button (hamburger muncul sampai tablet) */}
+                <button
+                    className={`lg:hidden text-3xl transition-colors duration-300 ${isSolid ? "text-gray-900" : "text-white"}`}
+                    onClick={() => setOpenMenu(!openMenu)}
+                >
+                    {openMenu ? <HiX /> : <HiMenuAlt3 />}
+                </button>
+            </div>
+
+            {/* Mobile dropdown menu */}
+            {openMenu && (
+                <div className="lg:hidden bg-black/95 text-white px-6 py-6 space-y-6">
+                    <nav className="flex flex-col gap-4 text-lg font-medium">
+                        <Link
+                            href="/"
+                            onClick={() => setOpenMenu(false)}
+                            className="block px-3 py-2 rounded hover:bg-white/10 transition-colors"
+                        >
                             Beranda
                         </Link>
-                        <a href="#features" onClick={() => setIsOpen(false)}>
+                        <a
+                            href="#features"
+                            onClick={() => setOpenMenu(false)}
+                            className="block px-3 py-2 rounded hover:bg-white/10 transition-colors"
+                        >
                             Layanan
                         </a>
-                        <a href="#testimonials" onClick={() => setIsOpen(false)}>
+                        <a
+                            href="#testimonials"
+                            onClick={() => setOpenMenu(false)}
+                            className="block px-3 py-2 rounded hover:bg-white/10 transition-colors"
+                        >
                             Testimoni
                         </a>
-                        <a href="#mitra" onClick={() => setIsOpen(false)}>
+                        <a
+                            href="#mitra"
+                            onClick={() => setOpenMenu(false)}
+                            className="block px-3 py-2 rounded hover:bg-white/10 transition-colors"
+                        >
                             Mitra
                         </a>
-                        <a href="#faq" onClick={() => setIsOpen(false)}>
+                        <a
+                            href="#faq"
+                            onClick={() => setOpenMenu(false)}
+                            className="block px-3 py-2 rounded hover:bg-white/10 transition-colors"
+                        >
                             FAQ
                         </a>
+                    </nav>
 
-                        {/* Login hanya muncul di menu mobile */}
-                        <Link
-                            href={route("login")}
-                            onClick={() => setIsOpen(false)}
-                            className="w-full mt-3"
-                        >
-                            <Button variant="danger" className="w-full">
+                    {/* Login button */}
+                    <div className="pt-4">
+                        <Link href="/login" onClick={() => setOpenMenu(false)}>
+                            <Button variant="alternate" className="w-full py-2 text-base">
                                 Login
                             </Button>
                         </Link>
                     </div>
-                )}
-            </header>
-
-            {/* Content */}
-            <main className="flex-1">{children}</main>
-        </div>
+                </div>
+            )}
+        </nav>
     );
-}
+};
+
+export default Navbar;

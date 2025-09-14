@@ -1,4 +1,3 @@
-import React from "react";
 import faqImage from "../../../assets/images/faq-image.png";
 import {
     Accordion,
@@ -36,27 +35,33 @@ const defaultFaqs: QA[] = [
     },
 ];
 
-const FAQ: React.FC<{ faqs?: QA[] }> = ({ faqs = defaultFaqs }) => {
+interface FaqSectionProps {
+    faqs?: QA[];
+}
+
+export default function FaqSection({ faqs = defaultFaqs }: FaqSectionProps) {
     return (
-        <section id="faq" className="w-full bg-white py-20">
-            <div className="container mx-auto px-6 flex flex-col md:flex-row items-start gap-8">
-                {/* Kolom kiri: gambar */}
-                <div className="flex-shrink-0">
+        <section id="faq" className="w-full py-32 px-6 lg:px-20">
+            <div className="container lg:space-x-10 mx-auto flex flex-col lg:flex-row items-center lg:items-start gap-8">
+                {/* Heading */}
+                <div className="w-full max-w-sm">
                     <img
                         src={faqImage}
                         alt="FAQ Illustration"
-                        className="w-full max-w-sm md:max-w-sm lg:max-w-md object-cover rounded-xl shadow-md"
+                        className="w-full object-cover rounded-xl shadow-md"
                     />
                 </div>
 
-                {/* Kolom kanan: teks FAQ */}
+                {/* Content */}
                 <div className="flex flex-col w-full items-start">
-                    <h3 className="text-3xl font-bold mb-2 text-left">
-                        Frequently Asked Questions
-                    </h3>
-                    <p className="text-slate-600 mb-6 text-left">
-                        Pertanyaan yang mungkin ditanyakan tentang layanan kami
-                    </p>
+                    <div className="mx-auto sm:mx-0 text-center">
+                        <h2 className="heading">
+                            Frequently Asked Questions
+                        </h2>
+                        <p className="subheading sm:text-left -mt-4">
+                            Pertanyaan yang mungkin ditanyakan tentang layanan kami
+                        </p>
+                    </div>
 
                     <Accordion type="single" collapsible className="w-full">
                         {faqs.map((item, idx) => (
@@ -64,7 +69,7 @@ const FAQ: React.FC<{ faqs?: QA[] }> = ({ faqs = defaultFaqs }) => {
                                 <AccordionTrigger className="text-left font-bold text-slate-800">
                                     {item.question}
                                 </AccordionTrigger>
-                                <AccordionContent className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+                                <AccordionContent className="text-slate-600 text-sm leading-relaxed whitespace-pre-line 2xl:pr-40">
                                     {item.answer}
                                 </AccordionContent>
                             </AccordionItem>
@@ -74,6 +79,4 @@ const FAQ: React.FC<{ faqs?: QA[] }> = ({ faqs = defaultFaqs }) => {
             </div>
         </section>
     );
-};
-
-export default FAQ;
+}
