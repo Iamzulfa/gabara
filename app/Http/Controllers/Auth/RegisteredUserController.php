@@ -32,8 +32,8 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'phone' => 'required|string|max:15|unique:'.User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'phone' => 'required|string|max:15|unique:' . User::class,
             'gender' => 'required|string|in:Laki-laki,Perempuan',
             'birthdate' => 'required|date|before:today',
             'password' => ['required', Rules\Password::defaults()],
@@ -52,6 +52,8 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        return redirect(route('login', absolute: false));
+        Auth::login($user);
+
+        return redirect(route('homepage', absolute: false));
     }
 }

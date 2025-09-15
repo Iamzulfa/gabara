@@ -115,7 +115,7 @@ export default function AppFooter() {
                         {galleryImages.map((img, i) => (
                             <div
                                 key={i}
-                                className="w-full aspect-[4/3] border border-slate-500 rounded-md overflow-hidden"
+                                className="w-full aspect-[4/3] rounded-md overflow-hidden"
                             >
                                 <img
                                     src={img}

@@ -1,46 +1,31 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\HomepageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Guest Routes
-Route::get('/', function () {
-    return Inertia::render('Homepage', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+Route::get('/', [HomepageController::class, 'index'])->name('homepage');
 
-// Admin Routes
-Route::middleware(['auth', 'verified', 'role:admin'])
-    ->prefix('dashboard/admin')
-    ->group(function () {
-        Route::get('/', function () {
-            return Inertia::render('Admin/Dashboard');
-        })->name('dashboard.admin');
-    });
+// Dashboard Routes
+Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
+    $user = auth()->user();
 
-// Mentor Routes
-Route::middleware(['auth', 'verified', 'role:mentor'])
-    ->prefix('dashboard/mentor')
-    ->group(function () {
-        Route::get('/', function () {
-            return Inertia::render('Mentor/Dashboard');
-        })->name('dashboard.mentor');
-    });
+    if ($user->hasRole('admin')) {
+        return Inertia::render('Admin/Dashboard');
+    }
 
-// Student Routes
-Route::middleware(['auth', 'verified', 'role:student'])
-    ->prefix('dashboard/student')
-    ->group(function () {
-        Route::get('/', function () {
-            return Inertia::render('Student/Dashboard');
-        }) ->name('dashboard.student');
-    });
+    if ($user->hasRole('mentor')) {
+        return Inertia::render('Mentor/Dashboard');
+    }
+
+    if ($user->hasRole('student')) {
+        return Inertia::render('Student/Dashboard');
+    }
+
+    abort(403, 'Unauthorized');
+})->name('dashboard');
 
 // Profile Routes
 Route::middleware('auth')->group(function () {

@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title inertia>{{ config('app.name', 'Gabara') }}</title>
+    <title inertia>{{ config('app.name', 'Garasi Belajar Banjarnegera') }}</title>
     <link rel="icon" type="image/png" href="https://garasibelajar.com/favicon.png" sizes="32x32">
 
     <!-- SEO -->
@@ -19,12 +19,12 @@
     <meta property="og:description" content="Kesempatan baru untuk terus belajar tanpa batas. Gabara hadir agar kamu bisa belajar lagi dengan cara yang lebih mudah." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://garasibelajar.com/" />
-    <meta property="og:image" content="https://garasibelajar.com/og-image.jpg" />
+    <meta property="og:image" content="https://garasibelajar.com/og-image.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Garasi Belajar Banjarnegara - Belajar Tanpa Batas" />
     <meta name="twitter:description" content="Kesempatan baru untuk terus belajar tanpa batas bersama Gabara." />
-    <meta name="twitter:image" content="https://garasibelajar.com/og-image.jpg" />
+    <meta name="twitter:image" content="https://garasibelajar.com/og-image.png" />
 
     <meta name="google-site-verification" content="ftRSZmi-EtHgNlV9YlVsWcaodn9L_AGpgGgvWM_p-Ng" />
 
