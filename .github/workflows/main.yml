@@ -23,20 +23,31 @@ jobs:
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            cd ~/gabara/gabara
+
+            cd ~/soetala/soetala
+
             # Bersihkan dan tarik kode terbaru
             git fetch --all
             git reset --hard origin/main
             git clean -fd
             git pull origin main
+
             # Instal dependensi Composer
             composer install --no-interaction --prefer-dist --optimize-autoloader
+
             # Instal dan build frontend
             npm install --legacy-peer-deps
             npm run build
+
             # Hapus cache lama
             rm -rf storage/logs/*.log
             rm -rf bootstrap/cache/*
+
+            # Atur permission supaya tidak error
+            mkdir -p storage/framework/{cache,sessions,views}
+            chmod -R 775 storage bootstrap/cache
+            chown -R $USER:www-data storage bootstrap/cache
+
             # Cache konfigurasi dan rute
             php artisan config:cache
             php artisan route:cache
