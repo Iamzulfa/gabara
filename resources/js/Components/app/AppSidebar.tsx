@@ -191,7 +191,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ navItems, othersItems = [] }) =
                 <Link href="/">
                     {isExpanded || isHovered || isMobileOpen ? (
                         <>
-                            <img src={logoColor} alt="Logo" className="dark:hidden w-18" />
+                            <img src={logoWhite} alt="Logo" className="dark:hidden w-48" />
                             <img src={logoWhite} alt="Logo" className="hidden dark:block w-48" />
                         </>
                     ) : (

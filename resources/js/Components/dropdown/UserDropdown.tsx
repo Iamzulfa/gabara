@@ -28,7 +28,7 @@ export default function UserDropdown() {
     };
 
     return (
-        <div className="relative">
+        <div className="relative ml-auto">
             <button
                 onClick={toggleDropdown}
                 className="flex items-center text-gray-700 dark:text-gray-400"
@@ -63,7 +63,7 @@ export default function UserDropdown() {
             {/* Dropdown panel */}
             {isOpen && (
                 <div
-                    className="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+                    className="absolute left-6 -translate-x-1/2 mt-[17px] w-[260px] flex flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
                     onMouseLeave={closeDropdown}
                 >
                     <div>
