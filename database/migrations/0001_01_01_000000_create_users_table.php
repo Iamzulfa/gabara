@@ -15,14 +15,22 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('phone')->unique()->default('');
+            $table->string('phone')->unique()->nullable();
             $table->enum('role', ['admin', 'mentor', 'student'])->default('student');
-            $table->enum('gender', ['Laki-laki', 'Perempuan']);
+            $table->enum('gender', ['Laki-laki', 'Perempuan'])->nullable();
             $table->date('birthdate')->default('2000-01-01');
-            $table->string('avatar')->nullable();
-            $table->string('public_id')->nullable();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('avatar')->nullable();
+            $table->string('public_id')->nullable()->comment('Cloudinary public ID for avatar');
+            $table->text('bio')->nullable();
+
+            $table->string('parent_name')->nullable()->comment('student only, nullable');
+            $table->string('parent_phone')->nullable()->comment('student only, nullable');
+            $table->text('address')->nullable()->comment('student only, nullable');
+
+            $table->string('expertise')->nullable()->comment('mentor only, nullable');
+
+            $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
