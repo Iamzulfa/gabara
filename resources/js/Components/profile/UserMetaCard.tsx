@@ -1,7 +1,8 @@
+// resources/js/Components/profile/UserMetaCard.tsx
 import { useEffect, useRef, useState } from "react";
 import { useForm, usePage } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
-import { FormEventHandler } from 'react';
+import { FormEventHandler } from "react";
 import { Modal } from "@/Components/ui/modal";
 import Button from "@/Components/ui/button/Button";
 import Input from "@/Components/form/input/InputField";
@@ -21,10 +22,19 @@ type UserForm = {
     gender: string;
     birthdate: string;
     avatar: File | null;
+
+    // role-specific
+    parent_name?: string;
+    parent_phone?: string;
+    address?: string;
+
+    expertise?: string;
+    scope?: string;
 };
 
 export default function UserMetaCard() {
     const { auth }: any = usePage().props;
+    const role: string = auth.user?.role ?? "";
     const [isOpen, setIsOpen] = useState(false);
     const [imagePreview, setImagePreview] = useState(ImageUser);
     const [loading, setLoading] = useState(false);
@@ -37,6 +47,11 @@ export default function UserMetaCard() {
         gender: auth.user?.gender || "",
         birthdate: auth.user?.birthdate || "",
         avatar: null,
+        parent_name: auth.user?.parent_name || "",
+        parent_phone: auth.user?.parent_phone || "",
+        address: auth.user?.address || "",
+        expertise: auth.user?.expertise || "",
+        scope: auth.user?.scope || "",
     });
 
     useEffect(() => {
@@ -63,7 +78,7 @@ export default function UserMetaCard() {
         }
 
         return () => fp.destroy();
-    }, [isOpen]);
+    }, [isOpen, data.birthdate, setData]);
 
     const handleSave: FormEventHandler = (e) => {
         e.preventDefault();
@@ -72,13 +87,36 @@ export default function UserMetaCard() {
 
         const formData = new FormData();
         formData.append("_method", "PATCH");
-        Object.entries(data).forEach(([key, value]) => {
-            if (key === "avatar" && value instanceof File) {
-                formData.append(key, value);
-            } else if (value !== null && value !== undefined) {
-                formData.append(key, value as string);
+
+        // append common fields
+        const keys = [
+            "name",
+            "phone",
+            "email",
+            "gender",
+            "birthdate",
+            "parent_name",
+            "parent_phone",
+            "address",
+            "expertise",
+            "scope",
+        ] as (keyof UserForm)[];
+
+        keys.forEach((key) => {
+            const value = data[key];
+            if (value !== undefined && value !== null && value !== "") {
+                formData.append(key as string, value as string);
+            } else {
+                // send empty string to clear field if user emptied it
+                // optional: comment this out if you don't want empty fields overwritten
+                formData.append(key as string, "");
             }
         });
+
+        // avatar
+        if (data.avatar && data.avatar instanceof File) {
+            formData.append("avatar", data.avatar);
+        }
 
         router.post(route("profile.update"), formData, {
             forceFormData: true,
@@ -92,7 +130,7 @@ export default function UserMetaCard() {
 
     return (
         <>
-            {/* Card User */}
+            {/* Card User (display) */}
             <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
                 <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                     <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
@@ -104,7 +142,7 @@ export default function UserMetaCard() {
                                 {data.name}
                             </h4>
                             <p className="text-sm text-gray-500 dark:text-gray-400 text-center xl:text-left">
-                                {auth.user?.role}
+                                {role}
                             </p>
                         </div>
                     </div>
@@ -119,15 +157,15 @@ export default function UserMetaCard() {
             </div>
 
             {/* Modal Edit */}
-            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className="max-w-[700px] m-4">
-                <div className="relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-6 dark:bg-gray-900">
-                    <h4 className="mb-4 text-2xl font-semibold text-gray-800 dark:text-white/90">Edit Profile</h4>
+            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className="max-w-[720px] m-4">
+                <div className="relative w-full max-w-[720px] overflow-y-auto rounded-3xl bg-white p-6 dark:bg-gray-900">
+                    <h4 className="mb-4 text-2xl font-semibold text-gray-800 dark:text-white/90">Edit Profil</h4>
 
                     <form className="flex flex-col" onSubmit={handleSave}>
                         <div className="space-y-5">
                             {/* Profile */}
                             <div>
-                                <Label>Foto Profile</Label>
+                                <Label>Foto Profil</Label>
                                 <input
                                     name="avatar"
                                     type="file"
@@ -194,6 +232,66 @@ export default function UserMetaCard() {
                                 <Input name="email" value={data.email} readOnly />
                                 {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
                             </div>
+
+                            {/* --- Role-specific Fields --- */}
+                            {role === "student" && (
+                                <>
+                                    <div>
+                                        <Label>Nama Orang Tua / Wali</Label>
+                                        <Input
+                                            name="parent_name"
+                                            value={data.parent_name}
+                                            onChange={(e) => setData("parent_name", e.target.value)}
+                                        />
+                                        {errors.parent_name && <p className="mt-1 text-xs text-red-500">{errors.parent_name}</p>}
+                                    </div>
+
+                                    <div>
+                                        <Label>Nomor HP Orang Tua / Wali</Label>
+                                        <Input
+                                            name="parent_phone"
+                                            value={data.parent_phone}
+                                            onChange={(e) => setData("parent_phone", e.target.value)}
+                                            placeholder="+628xxxx"
+                                        />
+                                        {errors.parent_phone && <p className="mt-1 text-xs text-red-500">{errors.parent_phone}</p>}
+                                    </div>
+
+                                    <div>
+                                        <Label>Alamat</Label>
+                                        <Input
+                                            name="address"
+                                            value={data.address}
+                                            onChange={(e) => setData("address", e.target.value)}
+                                        />
+                                        {errors.address && <p className="mt-1 text-xs text-red-500">{errors.address}</p>}
+                                    </div>
+                                </>
+                            )}
+
+                            {role === "mentor" && (
+                                <>
+                                    <div>
+                                        <Label>Bidang Keilmuan (Expertise)</Label>
+                                        <Input
+                                            name="expertise"
+                                            value={data.expertise}
+                                            onChange={(e) => setData("expertise", e.target.value)}
+                                        />
+                                        {errors.expertise && <p className="mt-1 text-xs text-red-500">{errors.expertise}</p>}
+                                    </div>
+
+                                    <div>
+                                        <Label>Pekerjaan / Scope</Label>
+                                        <Input
+                                            name="scope"
+                                            value={data.scope}
+                                            onChange={(e) => setData("scope", e.target.value)}
+                                        />
+                                        {errors.scope && <p className="mt-1 text-xs text-red-500">{errors.scope}</p>}
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         {/* Actions */}

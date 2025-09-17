@@ -2,26 +2,43 @@
 
 namespace App\Http\Requests;
 
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
+    public function authorize()
     {
+        // pastikan user diizinkan (mis. hanya owner)
+        return auth()->check();
+    }
+
+    public function rules()
+    {
+        // role could be passed in form or read from auth user
+        $role = $this->user()->role ?? $this->input('role');
+
         return [
-            'name' => ['', 'string', 'max:255'],
-            'email' => ['sometimes', 'email', 'max:255'],
-            'phone' => ['required', 'string', 'max:15', Rule::unique(User::class, 'phone')->ignore($this->user()->id)],
-            'gender' => ['required', 'string', 'in:Laki-laki,Perempuan'],
-            'birthdate' => ['required', 'date', 'before:today'],
-            'avatar' => ['nullable', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'email' => ['required', 'email', Rule::unique('users')->ignore($this->user()->id)],
+            'gender' => ['nullable', 'string', 'max:20'],
+            'birthdate' => ['nullable', 'date'],
+
+            // student-specific
+            'parent_name' => ['required_if:role,student', 'nullable', 'string', 'max:255'],
+            'parent_phone' => ['required_if:role,student', 'nullable', 'string', 'max:20'],
+            'address' => ['required_if:role,student', 'nullable', 'string'],
+
+            // mentor-specific
+            'expertise' => ['required_if:role,mentor', 'nullable', 'string', 'max:255'],
+            'scope' => ['nullable', 'string'],
+
+            // avatar
+            'avatar' => ['nullable', 'image', 'max:2048'],
         ];
     }
+
+    // If you expect role to be in request when editing other users,
+    // consider adding prepareForValidation() or other rules.
 }

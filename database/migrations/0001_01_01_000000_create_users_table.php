@@ -29,6 +29,7 @@ return new class extends Migration
             $table->text('address')->nullable()->comment('student only, nullable');
 
             $table->string('expertise')->nullable()->comment('mentor only, nullable');
+            $table->text('scope')->nullable()->comment('mentor only, nullable');
 
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
