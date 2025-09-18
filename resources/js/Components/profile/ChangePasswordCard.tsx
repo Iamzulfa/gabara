@@ -69,7 +69,15 @@ export default function ChangePasswordCard() {
                         Ganti Password
                     </h4>
 
-                    <form className="flex flex-col space-y-5" onSubmit={handleSave}>
+                    <form
+                        className="flex flex-col space-y-5"
+                        onSubmit={handleSave}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA") {
+                                e.preventDefault();
+                            }
+                        }}
+                    >
                         {/* Current Password */}
                         <div>
                             <Label>Password Lama</Label>

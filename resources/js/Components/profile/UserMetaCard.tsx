@@ -1,19 +1,22 @@
-// resources/js/Components/profile/UserMetaCard.tsx
 import { useEffect, useRef, useState } from "react";
 import { useForm, usePage } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
 import { FormEventHandler } from "react";
+import flatpickr from "flatpickr";
+import { Indonesian } from "flatpickr/dist/l10n/id.js";
+import "flatpickr/dist/flatpickr.min.css";
+
 import { Modal } from "@/Components/ui/modal";
 import Button from "@/Components/ui/button/Button";
 import Input from "@/Components/form/input/InputField";
 import Select from "@/Components/form/Select";
 import Label from "@/Components/form/Label";
-import flatpickr from "flatpickr";
-import "flatpickr/dist/flatpickr.min.css";
-import { Indonesian } from "flatpickr/dist/l10n/id.js";
+
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { LuPencil } from "react-icons/lu";
+
 import ImageUser from "../../../assets/images/image-user.png";
+
 
 type UserForm = {
     name: string;
@@ -23,7 +26,6 @@ type UserForm = {
     birthdate: string;
     avatar: File | null;
 
-    // role-specific
     parent_name?: string;
     parent_phone?: string;
     address?: string;
@@ -40,7 +42,7 @@ export default function UserMetaCard() {
     const [loading, setLoading] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
 
-    const { data, setData, errors } = useForm<UserForm>({
+    const { data, setData, errors, reset, clearErrors } = useForm<UserForm>({
         name: auth.user?.name || "",
         phone: auth.user?.phone || "",
         email: auth.user?.email || "",
@@ -60,7 +62,6 @@ export default function UserMetaCard() {
         }
     }, [auth.user]);
 
-    // Init flatpickr
     const birthdateRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
         if (!isOpen || !birthdateRef.current) return;
@@ -80,6 +81,12 @@ export default function UserMetaCard() {
         return () => fp.destroy();
     }, [isOpen, data.birthdate, setData]);
 
+    const handleClose = () => {
+        setIsOpen(false);
+        reset();
+        clearErrors();
+    };
+
     const handleSave: FormEventHandler = (e) => {
         e.preventDefault();
 
@@ -88,7 +95,6 @@ export default function UserMetaCard() {
         const formData = new FormData();
         formData.append("_method", "PATCH");
 
-        // append common fields
         const keys = [
             "name",
             "phone",
@@ -107,13 +113,10 @@ export default function UserMetaCard() {
             if (value !== undefined && value !== null && value !== "") {
                 formData.append(key as string, value as string);
             } else {
-                // send empty string to clear field if user emptied it
-                // optional: comment this out if you don't want empty fields overwritten
                 formData.append(key as string, "");
             }
         });
 
-        // avatar
         if (data.avatar && data.avatar instanceof File) {
             formData.append("avatar", data.avatar);
         }
@@ -122,6 +125,14 @@ export default function UserMetaCard() {
             forceFormData: true,
             onSuccess: () => {
                 setIsOpen(false);
+                setLoading(false);
+                reset();
+            },
+            onError: (err) => {
+                const errorMap = err as Record<string, string>;
+                Object.entries(errorMap).forEach(([key, value]) => {
+                    (errors as Record<string, string>)[key] = value;
+                });
                 setLoading(false);
             },
             onFinish: () => setLoading(false),
@@ -157,11 +168,23 @@ export default function UserMetaCard() {
             </div>
 
             {/* Modal Edit */}
-            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className="max-w-[720px] m-4">
-                <div className="relative w-full max-w-[720px] overflow-y-auto rounded-3xl bg-white p-6 dark:bg-gray-900">
+            <Modal
+                isOpen={isOpen}
+                onClose={handleClose}
+                className="max-w-[720px] m-4"
+            >
+                <div className="relative w-full max-w-[720px] h-[700px] no-scrollbar overflow-y-auto rounded-3xl bg-white p-6 dark:bg-gray-900">
                     <h4 className="mb-4 text-2xl font-semibold text-gray-800 dark:text-white/90">Edit Profil</h4>
 
-                    <form className="flex flex-col" onSubmit={handleSave}>
+                    <form
+                        className="flex flex-col"
+                        onSubmit={handleSave}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA") {
+                                e.preventDefault();
+                            }
+                        }}
+                    >
                         <div className="space-y-5">
                             {/* Profile */}
                             <div>
@@ -185,21 +208,36 @@ export default function UserMetaCard() {
 
                             {/* Name */}
                             <div>
-                                <Label>Nama Lengkap</Label>
-                                <Input name="name" value={data.name} onChange={(e) => setData("name", e.target.value)} />
+                                <Label required={true}>Nama Lengkap</Label>
+                                <Input
+                                    name="name"
+                                    value={data.name}
+                                    onChange={(e) => setData("name", e.target.value)}
+                                    placeholder="Contoh: Budi Santoso"
+                                />
                                 {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
                             </div>
 
                             {/* Phone */}
                             <div>
-                                <Label>WhatsApp</Label>
-                                <Input name="phone" value={data.phone} onChange={(e) => setData("phone", e.target.value)} />
+                                <Label required={true}>WhatsApp</Label>
+                                <Input
+                                    name="phone"
+                                    value={data.phone}
+                                    inputMode="numeric"
+                                    maxLength={15}
+                                    onChange={(e) => {
+                                        const onlyNumbers = e.target.value.replace(/\D/g, "");
+                                        setData("phone", onlyNumbers);
+                                    }}
+                                    placeholder="Masukkan nomor whatsapp aktif"
+                                />
                                 {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
                             </div>
 
                             {/* Gender */}
                             <div>
-                                <Label>Jenis Kelamin</Label>
+                                <Label required={true}>Jenis Kelamin</Label>
                                 <Select
                                     value={data.gender}
                                     onChange={(value) => setData("gender", value)}
@@ -215,7 +253,7 @@ export default function UserMetaCard() {
 
                             {/* Birthdate */}
                             <div>
-                                <Label>Tanggal Lahir</Label>
+                                <Label required={true}>Tanggal Lahir</Label>
                                 <Input
                                     ref={birthdateRef}
                                     id="birthdate"
@@ -237,32 +275,39 @@ export default function UserMetaCard() {
                             {role === "student" && (
                                 <>
                                     <div>
-                                        <Label>Nama Orang Tua / Wali</Label>
+                                        <Label required={true}>Nama Orang Tua / Wali</Label>
                                         <Input
                                             name="parent_name"
                                             value={data.parent_name}
                                             onChange={(e) => setData("parent_name", e.target.value)}
+                                            placeholder="Nama lengkap orang tua atau wali"
                                         />
                                         {errors.parent_name && <p className="mt-1 text-xs text-red-500">{errors.parent_name}</p>}
                                     </div>
 
                                     <div>
-                                        <Label>Nomor HP Orang Tua / Wali</Label>
+                                        <Label required={true}>Nomor HP Orang Tua / Wali</Label>
                                         <Input
                                             name="parent_phone"
                                             value={data.parent_phone}
-                                            onChange={(e) => setData("parent_phone", e.target.value)}
-                                            placeholder="+628xxxx"
+                                            inputMode="numeric"
+                                            maxLength={15}
+                                            onChange={(e) => {
+                                                const onlyNumbers = e.target.value.replace(/\D/g, "");
+                                                setData("parent_phone", onlyNumbers);
+                                            }}
+                                            placeholder="Nomor HP orang tua atau wali"
                                         />
                                         {errors.parent_phone && <p className="mt-1 text-xs text-red-500">{errors.parent_phone}</p>}
                                     </div>
 
                                     <div>
-                                        <Label>Alamat</Label>
+                                        <Label required={true}>Alamat</Label>
                                         <Input
                                             name="address"
                                             value={data.address}
                                             onChange={(e) => setData("address", e.target.value)}
+                                            placeholder="Masukkan alamat lengkap sesuai domisili"
                                         />
                                         {errors.address && <p className="mt-1 text-xs text-red-500">{errors.address}</p>}
                                     </div>
@@ -272,21 +317,23 @@ export default function UserMetaCard() {
                             {role === "mentor" && (
                                 <>
                                     <div>
-                                        <Label>Bidang Keilmuan (Expertise)</Label>
+                                        <Label required={true}>Bidang Keilmuan (Expertise)</Label>
                                         <Input
                                             name="expertise"
                                             value={data.expertise}
                                             onChange={(e) => setData("expertise", e.target.value)}
+                                            placeholder="Contoh: Matematika, Biologi, Fisika"
                                         />
                                         {errors.expertise && <p className="mt-1 text-xs text-red-500">{errors.expertise}</p>}
                                     </div>
 
                                     <div>
-                                        <Label>Pekerjaan / Scope</Label>
+                                        <Label required={true}>Pekerjaan / Scope</Label>
                                         <Input
                                             name="scope"
                                             value={data.scope}
                                             onChange={(e) => setData("scope", e.target.value)}
+                                            placeholder="Contoh: Guru SMA, Dosen Universitas"
                                         />
                                         {errors.scope && <p className="mt-1 text-xs text-red-500">{errors.scope}</p>}
                                     </div>
@@ -296,8 +343,8 @@ export default function UserMetaCard() {
 
                         {/* Actions */}
                         <div className="flex items-center gap-3 mt-6 justify-end">
-                            <Button size="sm" variant="outline" onClick={() => setIsOpen(false)} disabled={loading}>
-                                Close
+                            <Button size="sm" variant="outline" onClick={handleClose} disabled={loading}>
+                                Batal
                             </Button>
                             <Button size="sm" type="submit" variant="default" disabled={loading}>
                                 {loading ? (

@@ -18,6 +18,10 @@ class HomepageController extends Controller
             return redirect()->route('verification.notice');
         }
 
+        if ($user && $user->hasVerifiedEmail()) {
+            return redirect()->route('dashboard');
+        }
+
         return Inertia::render('Homepage', [
             'canLogin'       => Route::has('login'),
             'canRegister'    => Route::has('register'),

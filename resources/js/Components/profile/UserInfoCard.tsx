@@ -20,14 +20,12 @@ export default function UserInfoCard() {
         <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div className="w-full">
-                    <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
+                    <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4 lg:mb-6">
                         Informasi Pribadi
                     </h4>
 
                     {/* Grid 2 kolom (responsive) */}
-                    {/* Ganti bagian grid lama dengan kode ini */}
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
-                        {/* Kolom 1 (selalu tampil) */}
                         <div className="flex flex-col gap-6">
                             <div>
                                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
