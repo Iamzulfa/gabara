@@ -59,6 +59,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'parent_phone',
         'address',
         'expertise',
+        'scope',
         'public_id',
         'email_verified_at',
     ];

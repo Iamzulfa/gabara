@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,7 +13,7 @@ use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Tampilkan halaman profile user.
      */
     public function edit(Request $request): Response
     {
@@ -26,18 +24,40 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Update profile user sesuai role + handle Cloudinary.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(ProfileUpdateRequest $request)
     {
         $user = $request->user();
+        $data = $request->validated();
 
-        $validated = $request->all();
+        // Common fields
+        $user->name      = $data['name'] ?? $user->name;
+        $user->phone     = $data['phone'] ?? $user->phone;
+        $user->gender    = $data['gender'] ?? $user->gender;
+        $user->birthdate = $data['birthdate'] ?? $user->birthdate;
 
-        unset($validated['email']);
+        // Email update
+        if (isset($data['email']) && $data['email'] !== $user->email) {
+            $user->email = $data['email'];
+            $user->email_verified_at = null;
 
-        $user->fill($validated);
+            if (method_exists($user, 'sendEmailVerificationNotification')) {
+                $user->sendEmailVerificationNotification();
+            }
+        }
 
+        // Role-specific
+        if ($user->role === 'student') {
+            $user->parent_name  = $data['parent_name'] ?? null;
+            $user->parent_phone = $data['parent_phone'] ?? null;
+            $user->address      = $data['address'] ?? null;
+        } elseif ($user->role === 'mentor') {
+            $user->expertise = $data['expertise'] ?? null;
+            $user->scope     = $data['scope'] ?? null;
+        }
+
+        // Avatar with Cloudinary
         if ($request->hasFile('avatar')) {
             if ($user->public_id) {
                 Cloudinary::uploadApi()->destroy($user->public_id);
@@ -48,37 +68,12 @@ class ProfileController extends Controller
                 ['folder' => 'images/profile']
             );
 
-            $user->avatar = $uploaded['secure_url'];
+            $user->avatar    = $uploaded['secure_url'];
             $user->public_id = $uploaded['public_id'];
         }
 
         $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'Profile updated successfully!');
-    }
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
-        if ($user->public_id) {
-            Cloudinary::uploadApi()->destroy($user->public_id);
-        }
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
     }
 }
