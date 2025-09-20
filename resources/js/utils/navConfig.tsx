@@ -6,16 +6,16 @@ export const navConfig: Record<string, any[]> = {
     admin: [
         { icon: <LuLayoutDashboard />, name: "Dashboard", path: "/dashboard" },
         { icon: <LuUserRound />, name: "User", path: "/admin/users" },
-        { icon: <MdOutlineClass />, name: "Kelas", path: "/admin/classes" },
+        { icon: <MdOutlineClass />, name: "Kelas", path: "/classes" },
         { icon: <GrAnnounce />, name: "Pengumuman", path: "/admin/announcements" },
     ],
     mentor: [
         { icon: <LuLayoutDashboard />, name: "Dashboard", path: "/dashboard" },
-        { icon: <MdOutlineClass />, name: "Kelasku", path: "/mentor/kelas" },
+        { icon: <MdOutlineClass />, name: "Kelasku", path: "/classes" },
         { icon: <MdOutlineQuiz />, name: "Kuis", path: "/mentor/kuis" },
     ],
     student: [
         { icon: <LuLayoutDashboard />, name: "Dashboard", path: "/dashboard" },
-        { icon: <MdOutlineClass />, name: "Kelasku", path: "/student/kelas" },
+        { icon: <MdOutlineClass />, name: "Kelasku", path: "/classes" },
     ],
 };

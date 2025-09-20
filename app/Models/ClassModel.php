@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  * @property bool $visibility
  * @property string $academic_year_tag
  * @property string $mentor_id
+ * @property string $public_id
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  */
@@ -34,6 +35,7 @@ class ClassModel extends Model
         'visibility',
         'academic_year_tag',
         'mentor_id',
+        'public_id',
     ];
 
     protected $casts = [

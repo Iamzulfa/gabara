@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, usePage, router } from "@inertiajs/react";
-import ImageUser from "../../../assets/images/image-user.png";
+// import ImageUser from "../../../assets/images/image-user.png";
 
 type AppUser = {
     id: string;
@@ -35,7 +35,7 @@ export default function UserDropdown() {
             >
                 <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
                     <img
-                        src={user.avatar || ImageUser}
+                        src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`}
                         alt="User"
                     />
                 </span>

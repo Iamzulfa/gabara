@@ -2,6 +2,12 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomepageController;
+use App\Http\Controllers\ClassController;
+use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\MeetingController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\SubmissionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -27,6 +33,50 @@ Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
     abort(403, 'Unauthorized');
 })->name('dashboard');
 
+// Class Routes
+Route::middleware(['auth', 'verified'])->prefix('classes')->group(function () {
+    Route::get('/', [ClassController::class, 'index'])->name('classes.index');
+    Route::get('/{id}', [ClassController::class, 'show'])->name('classes.show');
+
+    Route::middleware('role:admin|mentor')->group(function () {
+        Route::post('/', [ClassController::class, 'store'])->name('classes.store');
+        Route::patch('/{id}', [ClassController::class, 'update'])->name('classes.update');
+        Route::delete('/{id}', [ClassController::class, 'destroy'])->name('classes.destroy');
+    });
+
+    Route::middleware('role:student')->group(function () {
+        Route::post('/enrollments', [EnrollmentController::class, 'store'])->name('enrollments.store');
+    });
+});
+
+// Meeting Routes
+Route::middleware(['auth', 'verified', 'role:admin|mentor'])->prefix('meetings')->group(function () {
+    Route::post('/', [MeetingController::class, 'store'])->name('meetings.store');
+    Route::patch('/{id}', [MeetingController::class, 'update'])->name('meetings.update');
+    Route::delete('/{id}', [MeetingController::class, 'destroy'])->name('meetings.destroy');
+});
+
+// Material Routes
+Route::middleware(['auth', 'verified', 'role:admin|mentor'])->prefix('materials')->group(function () {
+    Route::delete('/{id}', [MaterialController::class, 'destroy'])->name('materials.destroy');
+});
+
+// Assignment Routes
+Route::middleware(['auth', 'verified'])->prefix('/classes/assignments')->group(function () {
+    Route::get('/{id}', [AssignmentController::class, 'show'])->name('assignments.show');
+    Route::delete('/{id}', [AssignmentController::class, 'destroy'])->name('assignments.destroy')->middleware('role:admin|mentor');
+});
+
+// Submission Routes
+Route::middleware(['auth', 'verified'])->prefix('/classes/assignments')->group(function () {
+    Route::middleware('role:student')->group(function () {
+        Route::post('/{assignmentId}/submissions', [SubmissionController::class, 'store'])->name('submissions.store');
+        Route::post('/submissions/{submissionId}', [SubmissionController::class, 'update'])->name('submissions.update');
+        Route::delete('/submissions/{submissionId}', [SubmissionController::class, 'destroy'])->name('submissions.destroy');
+    });
+    Route::post('/submissions/{submissionId}/grade', [SubmissionController::class, 'updateGrade'])->name('submissions.updateGrade')->middleware('role:admin|mentor');
+});
+
 // Profile Routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -34,4 +84,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -15,9 +15,6 @@ import Label from "@/Components/form/Label";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { LuPencil } from "react-icons/lu";
 
-import ImageUser from "../../../assets/images/image-user.png";
-
-
 type UserForm = {
     name: string;
     phone: string;
@@ -38,7 +35,6 @@ export default function UserMetaCard() {
     const { auth }: any = usePage().props;
     const role: string = auth.user?.role ?? "";
     const [isOpen, setIsOpen] = useState(false);
-    const [imagePreview, setImagePreview] = useState(ImageUser);
     const [loading, setLoading] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -55,6 +51,8 @@ export default function UserMetaCard() {
         expertise: auth.user?.expertise || "",
         scope: auth.user?.scope || "",
     });
+
+    const [imagePreview, setImagePreview] = useState(`https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}`);
 
     useEffect(() => {
         if (auth.user?.avatar) {
@@ -146,7 +144,7 @@ export default function UserMetaCard() {
                 <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                     <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
                         <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-                            <img src={imagePreview} alt="user" className="object-cover w-full h-full" />
+                            <img src={imagePreview || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}`} alt="user" className="object-cover w-full h-full" />
                         </div>
                         <div className="order-3 xl:order-2">
                             <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
@@ -343,10 +341,10 @@ export default function UserMetaCard() {
 
                         {/* Actions */}
                         <div className="flex items-center gap-3 mt-6 justify-end">
-                            <Button size="sm" variant="outline" onClick={handleClose} disabled={loading}>
+                            <Button size="md" variant="outline" onClick={handleClose} disabled={loading}>
                                 Batal
                             </Button>
-                            <Button size="sm" type="submit" variant="default" disabled={loading}>
+                            <Button size="md" type="submit" variant="default" disabled={loading}>
                                 {loading ? (
                                     <>
                                         <AiOutlineLoading3Quarters className="animate-spin text-lg" />

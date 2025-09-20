@@ -19,9 +19,6 @@ export default function Login({ status }: { status?: string }) {
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         post(route("login"), {
-            onSuccess: () => {
-                toast.success("Login berhasil 🚀");
-            },
             onFinish: () => {
                 reset("password");
             },

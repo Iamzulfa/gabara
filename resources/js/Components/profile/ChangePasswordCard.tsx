@@ -152,10 +152,10 @@ export default function ChangePasswordCard() {
 
                         {/* Actions */}
                         <div className="flex items-center gap-3 mt-6 justify-end">
-                            <Button size="sm" variant="outline" onClick={() => setIsOpen(false)} disabled={loading}>
+                            <Button size="md" variant="outline" onClick={() => setIsOpen(false)} disabled={loading}>
                                 Batal
                             </Button>
-                            <Button size="sm" type="submit" variant="default" disabled={loading}>
+                            <Button size="md" type="submit" variant="default" disabled={loading}>
                                 {loading ? (
                                     <>
                                         <AiOutlineLoading3Quarters className="animate-spin text-lg" />

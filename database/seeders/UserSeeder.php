@@ -33,13 +33,31 @@ class UserSeeder extends Seeder
 
         $admin->assignRole('admin');
 
-        // Mentor
-        $mentor = User::updateOrCreate(
-            ['email' => 'mentor@example.com'],
+        // Mentor 1
+        $mentor1 = User::updateOrCreate(
+            ['email' => 'mentor1@example.com'],
             [
                 'id' => (string) Str::uuid(),
-                'name' => 'Mentor User',
+                'name' => 'Aditya Pratama',
                 'phone' => '081234567892',
+                'birthdate' => '2000-01-01',
+                'gender' => 'Laki-laki',
+                'password' => Hash::make('Password123!'),
+                'email_verified_at' => now(),
+                'role' => 'mentor',
+                'avatar' => null,
+            ]
+        );
+
+        $mentor1->assignRole('mentor');
+
+        // Mentor 2
+        $mentor2 = User::updateOrCreate(
+            ['email' => 'mentor2@example.com'],
+            [
+                'id' => (string) Str::uuid(),
+                'name' => 'Ayu Lestari',
+                'phone' => '081234567893',
                 'birthdate' => '2000-01-01',
                 'gender' => 'Perempuan',
                 'password' => Hash::make('Password123!'),
@@ -49,15 +67,33 @@ class UserSeeder extends Seeder
             ]
         );
 
-        $mentor->assignRole('mentor');
+        $mentor2->assignRole('mentor');
 
-        // Student
-        $student = User::updateOrCreate(
-            ['email' => 'student@example.com'],
+        // Student 1
+        $student1 = User::updateOrCreate(
+            ['email' => 'student1@example.com'],
             [
                 'id' => (string) Str::uuid(),
-                'name' => 'Student User',
-                'phone' => '081234567893',
+                'name' => 'Gilang Permana',
+                'phone' => '081234567894',
+                'birthdate' => '2000-01-01',
+                'gender' => 'Laki-laki',
+                'password' => Hash::make('Password123!'),
+                'email_verified_at' => now(),
+                'role' => 'student',
+                'avatar' => null,
+            ]
+        );
+
+        $student1->assignRole('student');
+
+        // Student 2
+        $student2 = User::updateOrCreate(
+            ['email' => 'student2@example.com'],
+            [
+                'id' => (string) Str::uuid(),
+                'name' => 'Dian Maharani',
+                'phone' => '081234567895',
                 'birthdate' => '2000-01-01',
                 'gender' => 'Perempuan',
                 'password' => Hash::make('Password123!'),
@@ -67,6 +103,42 @@ class UserSeeder extends Seeder
             ]
         );
 
-        $student->assignRole('student');
+        $student2->assignRole('student');
+
+        // Student 3
+        $student3 = User::updateOrCreate(
+            ['email' => 'student3@example.com'],
+            [
+                'id' => (string) Str::uuid(),
+                'name' => 'Fajar Nugroho',
+                'phone' => '081234567896',
+                'birthdate' => '2000-01-01',
+                'gender' => 'Laki-laki',
+                'password' => Hash::make('Password123!'),
+                'email_verified_at' => now(),
+                'role' => 'student',
+                'avatar' => null,
+            ]
+        );
+
+        $student3->assignRole('student');
+
+        // Student 4
+        $student4 = User::updateOrCreate(
+            ['email' => 'student4@example.com'],
+            [
+                'id' => (string) Str::uuid(),
+                'name' => 'Melati Kusuma',
+                'phone' => '081234567897',
+                'birthdate' => '2000-01-01',
+                'gender' => 'Perempuan',
+                'password' => Hash::make('Password123!'),
+                'email_verified_at' => now(),
+                'role' => 'student',
+                'avatar' => null,
+            ]
+        );
+
+        $student4->assignRole('student');
     }
 }
