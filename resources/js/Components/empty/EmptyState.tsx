@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "../../lib/utils";
+import Illustration from "../../../assets/svg/image-empty.svg"
 
 interface EmptyStateProps {
     title?: string;
@@ -11,7 +12,7 @@ interface EmptyStateProps {
 const EmptyState: React.FC<EmptyStateProps> = ({
     title = "Tidak ada data",
     description = "Kami tidak menemukan data untuk ditampilkan.",
-    imageSrc = "/src/assets/img/img-empty.png",
+    imageSrc = Illustration,
     className = "",
 }) => {
     return (

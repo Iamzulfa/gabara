@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description');
             $table->string('enrollment_code')->unique();
             $table->string('thumbnail')->nullable();
+            $table->string('public_id')->nullable();
             $table->boolean('visibility')->default(true);
             $table->string('academic_year_tag');
             $table->uuid('mentor_id');

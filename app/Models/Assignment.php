@@ -12,9 +12,9 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  * @property string $title
  * @property string $description
  * @property \Carbon\Carbon $date_open
- * @property \Carbon\Carbon $time_open
+ * @property string $time_open
  * @property \Carbon\Carbon $date_close
- * @property \Carbon\Carbon $time_close
+ * @property string $time_close
  * @property string|null $file_link
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -40,9 +40,9 @@ class Assignment extends Model
 
     protected $casts = [
         'date_open' => 'date',
-        'time_open' => 'time',
+        'time_open' => 'string',
         'date_close' => 'date',
-        'time_close' => 'time',
+        'time_close' => 'string',
     ];
 
     public function meeting()

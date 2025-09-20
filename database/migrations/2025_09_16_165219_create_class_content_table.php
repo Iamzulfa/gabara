@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('meetings', function (Blueprint $table) {
+        Schema::create('meetings', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('class_id');
             $table->string('title');

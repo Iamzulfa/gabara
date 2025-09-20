@@ -21,8 +21,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange }) => {
                         ["bold", "italic", "underline"],
                         [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
 
-                        [{ 'indent': '-1' }, { 'indent': '+1' }],    
-                        [{ 'direction': 'rtl' }],                     
+                        [{ 'indent': '-1' }, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
 
                         [{ 'color': [] }, { 'background': [] }],
                         [{ 'align': [] }],
@@ -52,7 +52,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange }) => {
             <div
                 ref={editorRef}
                 style={{
-                    height: "300px",
+                    height: "100px",
                     overflow: "auto",
                     resize: "vertical",
                     border: "1px solid #ccc",

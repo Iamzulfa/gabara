@@ -35,11 +35,11 @@ class Meeting extends Model
 
     public function materials()
     {
-        return $this->hasMany(Material::class, 'meeting_id');
+        return $this->hasMany(Material::class, 'meeting_id', 'id');
     }
 
     public function assignments()
     {
-        return $this->hasMany(Assignment::class, 'meeting_id');
+        return $this->hasMany(Assignment::class, 'meeting_id', 'id');
     }
 }
