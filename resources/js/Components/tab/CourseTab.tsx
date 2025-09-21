@@ -136,7 +136,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
             resetMeeting();
             setServerErrors({});
         } else {
-            // toast.error("Anda tidak memiliki izin untuk menambah pertemuan.");
+            toast.error("Anda tidak memiliki izin untuk menambah pertemuan.");
         }
     }, [userRole, resetMeeting]);
 
@@ -146,7 +146,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
             setEditingMeeting(meeting);
             setServerErrors({});
         } else {
-            // toast.error("Anda tidak memiliki izin untuk mengedit pertemuan.");
+            toast.error("Anda tidak memiliki izin untuk mengedit pertemuan.");
         }
     }, [userRole]);
 
@@ -156,7 +156,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
             setLoading(true);
 
             if (!meetingData.title || !meetingData.description) {
-                // toast.error("Judul dan deskripsi wajib diisi.");
+                toast.error("Judul dan deskripsi wajib diisi.");
                 setLoading(false);
                 return;
             }
@@ -189,7 +189,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
                     : [];
 
             if (showAddAssignment && !validAssignments.length) {
-                // toast.error("Semua field tugas wajib diisi.");
+                toast.error("Semua field tugas wajib diisi.");
                 setLoading(false);
                 return;
             }
@@ -221,14 +221,14 @@ export default function CourseTab({ classData }: CourseTabProps) {
                 router.post(route("meetings.update", editingMeeting.id), formData, {
                     forceFormData: true,
                     onSuccess: () => {
-                        // toast.success("Pertemuan berhasil diperbarui.");
+                        toast.success("Pertemuan berhasil diperbarui.");
                         setEditingMeeting(null);
                         resetMeeting();
                         setServerErrors({});
                     },
                     onError: (errors) => {
                         setServerErrors(errors);
-                        // toast.error("Gagal memperbarui pertemuan.");
+                        toast.error("Gagal memperbarui pertemuan.");
                     },
                     onFinish: () => setLoading(false),
                 });
@@ -236,7 +236,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
                 router.post(route("meetings.store"), formData, {
                     forceFormData: true,
                     onSuccess: () => {
-                        // toast.success("Pertemuan berhasil ditambahkan.");
+                        toast.success("Pertemuan berhasil ditambahkan.");
                         setIsAdding(false);
                         setShowAddMaterial(false);
                         setShowAddAssignment(false);
@@ -256,7 +256,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
                     },
                     onError: (errors) => {
                         setServerErrors(errors);
-                        // toast.error("Gagal menambahkan pertemuan.");
+                        toast.error("Gagal menambahkan pertemuan.");
                     },
                     onFinish: () => setLoading(false),
                 });
@@ -275,14 +275,14 @@ export default function CourseTab({ classData }: CourseTabProps) {
             })) {
                 router.delete(route("meetings.destroy", id), {
                     onSuccess: () => {
-                        // toast.success("Pertemuan berhasil dihapus.");
+                        toast.success("Pertemuan berhasil dihapus.");
                         setMeetings(prev => prev.filter(m => m.id !== id));
                     },
                     onError: () => toast.error("Gagal menghapus pertemuan.")
                 });
             }
         } else {
-            // toast.error("Anda tidak memiliki izin untuk menghapus pertemuan.");
+            toast.error("Anda tidak memiliki izin untuk menghapus pertemuan.");
         }
     }, [userRole]);
 
@@ -316,14 +316,14 @@ export default function CourseTab({ classData }: CourseTabProps) {
             })) {
                 router.delete(route("materials.destroy", materialId), {
                     onSuccess: () => {
-                        // toast.success("Berkas berhasil dihapus.");
+                        toast.success("Berkas berhasil dihapus.");
                         router.reload({ only: ['meetings'] });
                     },
                     onError: () => toast.error("Gagal menghapus berkas.")
                 });
             }
         } else {
-            // toast.error("Anda tidak memiliki izin untuk menghapus berkas.");
+            toast.error("Anda tidak memiliki izin untuk menghapus berkas.");
         }
     }, [userRole]);
 
@@ -369,14 +369,14 @@ export default function CourseTab({ classData }: CourseTabProps) {
             })) {
                 router.delete(route("assignments.destroy", assignmentId), {
                     onSuccess: () => {
-                        // toast.success("Tugas berhasil dihapus.");
+                        toast.success("Tugas berhasil dihapus.");
                         router.reload({ only: ['meetings'] });
                     },
                     onError: () => toast.error("Gagal menghapus tugas.")
                 });
             }
         } else {
-            // toast.error("Anda tidak memiliki izin untuk menghapus tugas.");
+            toast.error("Anda tidak memiliki izin untuk menghapus tugas.");
         }
     }, [userRole]);
 

@@ -42,11 +42,11 @@ export default function ClassCard() {
         router.delete(route("classes.destroy", id), {
             preserveScroll: true,
             onSuccess: () => {
-                // toast.success("Kelas berhasil dihapus");
+                toast.success("Kelas berhasil dihapus");
                 setDeletingId(null);
             },
             onError: () => {
-                // toast.error("Gagal menghapus kelas");
+                toast.error("Gagal menghapus kelas");
                 setDeletingId(null);
             },
         });

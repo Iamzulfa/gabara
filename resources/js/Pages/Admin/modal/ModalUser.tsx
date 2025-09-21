@@ -118,7 +118,7 @@ export const ModalUser = ({ isOpen, onClose, user }: ModalUserProps) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} className="max-w-[700px] m-4">
+        <Modal isOpen={isOpen} onClose={onClose} className="max-w-[330px] 2xsm:max-w-[350px] md:max-w-[700px] m-4">
             <div className="no-scrollbar relative w-full max-w-[800px] max-h-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
                 <h4 className="mb-4 text-2xl font-semibold text-gray-800 dark:text-white/90">
                     {isEditing ? "Edit Pengguna" : "Tambah Pengguna"}

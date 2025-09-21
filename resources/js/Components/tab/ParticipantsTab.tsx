@@ -46,7 +46,7 @@ export default function ParticipantsTab({ classData }: ParticipantsTabProps) {
                         </div>
                     ))
                 ) : (
-                    <p className="text-sm text-gray-500">Tidak ada peserta yang sesuai dengan pencarian.</p>
+                    <p className="text-sm text-gray-500">Tidak ada data peserta</p>
                 )}
             </div>
         </div>

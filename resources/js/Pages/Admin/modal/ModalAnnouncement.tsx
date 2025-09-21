@@ -96,7 +96,7 @@ export const ModalAnnouncement = ({ isOpen, onClose, announcementData }: ModalAn
             router.post(route("announcements.update", announcementData.id), formData, {
                 forceFormData: true,
                 onSuccess: () => {
-                    // toast.success("Pengumuman berhasil diperbarui");
+                    toast.success("Pengumuman berhasil diperbarui");
                     reset();
                     setImageFile(null);
                     setImagePreview(null);
@@ -111,7 +111,7 @@ export const ModalAnnouncement = ({ isOpen, onClose, announcementData }: ModalAn
             router.post(route("announcements.store"), formData, {
                 forceFormData: true,
                 onSuccess: () => {
-                    // toast.success("Pengumuman berhasil ditambahkan");
+                    toast.success("Pengumuman berhasil ditambahkan");
                     reset();
                     setImageFile(null);
                     setImagePreview(null);
@@ -126,7 +126,7 @@ export const ModalAnnouncement = ({ isOpen, onClose, announcementData }: ModalAn
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} className="max-w-[700px] m-4">
+        <Modal isOpen={isOpen} onClose={onClose} className="max-w-[330px] 2xsm:max-w-[350px] md:max-w-[700px] m-4">
             <div className="no-scrollbar relative w-full max-w-[700px] max-h-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
                 <h4 className="text-2xl font-semibold mb-4">
                     {announcementData ? "Edit Pengumuman" : "Tambah Pengumuman"}

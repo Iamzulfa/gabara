@@ -123,7 +123,7 @@ export const ModalClass = ({ isOpen, onClose, classData }: ModalClassProps) => {
         if (role === "student") {
             router.post(route("enrollments.store"), { enrollment_code: data.enrollment_code }, {
                 onSuccess: () => {
-                    // toast.success("Berhasil bergabung ke kelas");
+                    toast.success("Berhasil bergabung ke kelas");
                     reset();
                     onClose();
                 },
@@ -152,7 +152,7 @@ export const ModalClass = ({ isOpen, onClose, classData }: ModalClassProps) => {
             router.post(route("classes.update", classData.id), formData, {
                 forceFormData: true,
                 onSuccess: () => {
-                    // toast.success("Kelas berhasil diperbarui");
+                    toast.success("Kelas berhasil diperbarui");
                     reset();
                     setImageFile(null);
                     setImagePreview(null);
@@ -167,7 +167,7 @@ export const ModalClass = ({ isOpen, onClose, classData }: ModalClassProps) => {
             router.post(route("classes.store"), formData, {
                 forceFormData: true,
                 onSuccess: () => {
-                    // toast.success("Kelas berhasil ditambahkan");
+                    toast.success("Kelas berhasil ditambahkan");
                     reset();
                     setImageFile(null);
                     setImagePreview(null);
@@ -182,7 +182,7 @@ export const ModalClass = ({ isOpen, onClose, classData }: ModalClassProps) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} className="max-w-[700px] m-4">
+        <Modal isOpen={isOpen} onClose={onClose} className="max-w-[330px] 2xsm:max-w-[350px] md:max-w-[700px] m-4">
             <div className="no-scrollbar relative w-full max-w-[700px] max-h-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
                 <h4 className="text-2xl font-semibold mb-4">
                     {role === "student" ? "Bergabung ke Kelas" : classData ? "Edit Kelas" : "Tambah Kelas"}

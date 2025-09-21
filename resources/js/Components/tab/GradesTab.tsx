@@ -1,7 +1,6 @@
 import React from 'react';
 import { usePage } from '@inertiajs/react';
 import ReactApexChart from 'react-apexcharts';
-
 import { PageProps, Grade, ChartData } from '@/types/types';
 
 const GradesTab: React.FC = () => {
@@ -9,15 +8,20 @@ const GradesTab: React.FC = () => {
     const { auth, class: classData, userRole } = props;
     const isStudent = userRole === 'student';
 
+    if (!classData) {
+        return (
+            <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-lg md:text-xl font-semibold text-gray-800">Nilai</h2>
+                <p className="text-gray-500">Data kelas tidak tersedia.</p>
+            </div>
+        );
+    }
+
     const allAssignments = classData.meetings.flatMap(meeting => meeting.assignments);
     const allSubmissions = classData.meetings.flatMap(meeting =>
         meeting.assignments.flatMap(assignment => assignment.submissions)
     );
     const enrolledStudents = classData.enrollments.map(enrollment => enrollment.student);
-
-    console.log('allAssignments', allAssignments);
-    console.log('allSubmissions', allSubmissions);
-    console.log('enrolledStudents', enrolledStudents);
 
     const grades: Grade[] = isStudent
         ? allAssignments.map((assignment) => {
