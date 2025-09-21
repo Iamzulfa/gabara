@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import { usePage } from "@inertiajs/react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import HeaderSection from '@/Components/card/HeaderCard';
+import DashboardCard from '@/Components/card/DashboardCard';
 
 export default function AdminDashboard() {
     const { auth }: any = usePage().props;
@@ -19,6 +20,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-12 gap-4 md:gap-6">
                 <div className="col-span-12 space-y-6 xl:col-span-12">
                     <HeaderSection title={`Selamat datang Kembali, ${auth.user.name}`} date={today} />
+                    <DashboardCard />
                 </div>
             </div>
         </DashboardLayout>
