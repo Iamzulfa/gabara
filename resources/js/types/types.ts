@@ -11,6 +11,17 @@ export interface User {
     birthdate?: string;
 }
 
+export interface Student {
+    id: string;
+    name: string;
+    avatar?: string;
+}
+
+export interface Enrollment {
+    id?: string;
+    student: Student;
+}
+
 export interface Meeting {
     id: string;
     class_id: string;
@@ -41,6 +52,19 @@ export interface Assignment {
     created_at: string;
     class_id?: string;
     class_name?: string;
+    submissions: Submission[];
+}
+
+export interface Submission {
+    id: string;
+    assignment_id: string;
+    student_id: string;
+    student_name: string;
+    submitted_at?: string;
+    submission_content?: string;
+    grade?: number;
+    feedback?: string;
+    created_at: string;
 }
 
 export interface Discussion {
@@ -50,11 +74,6 @@ export interface Discussion {
     content: string;
     created_at: string;
     user_id: string;
-}
-
-export interface Enrollment {
-    id: string;
-    student: User;
 }
 
 export interface Class {
@@ -75,14 +94,17 @@ export interface Class {
     enrollments: Enrollment[];
 }
 
-export interface Submission {
-    id: string;
-    assignment_id: string;
-    student_id: string;
-    student_name: string;
-    submitted_at?: string;
-    submission_content?: string;
-    grade?: number;
+export interface Grade {
+    item: string;
+    student_name?: string;
+    score?: number;
+    feedback?: string;
+    status: string;
+}
+
+export interface ChartData {
+    series: { name: string; data: number[] }[];
+    categories: string[];
 }
 
 export interface MeetingForm {
@@ -114,6 +136,7 @@ export interface PageProps extends InertiaPageProps {
         user: User;
     };
     userRole: string;
+    errors?: Record<string, string>;
 }
 
 export interface AssignmentPageProps extends InertiaPageProps {

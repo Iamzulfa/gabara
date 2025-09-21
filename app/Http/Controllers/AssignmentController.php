@@ -44,6 +44,7 @@ class AssignmentController extends Controller
                 'assignment_id' => $assignment->id,
                 'student_id' => $student->id,
                 'student_name' => $student->name,
+                'feedback' => $submission ? $submission->feedback : null,
                 'grade' => $submission ? $submission->grade : null,
                 'submitted_at' => $submission ? $submission->submitted_at : null,
                 'submission_content' => $submission ? $submission->submission_content : null,

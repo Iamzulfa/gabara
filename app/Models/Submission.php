@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  * @property string $student_id
  * @property string|null $submission_content
  * @property float|null $grade
+ * @property string|null $feedback
  * @property \Carbon\Carbon|null $submitted_at
  * @property string|null $public_id
  * @property \Carbon\Carbon $created_at
@@ -30,6 +31,7 @@ class Submission extends Model
         'student_id',
         'submission_content',
         'grade',
+        'feedback',
         'submitted_at',
         'public_id',
     ];
