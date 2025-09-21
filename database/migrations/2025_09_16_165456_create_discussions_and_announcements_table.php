@@ -36,9 +36,11 @@ return new class extends Migration
 
         Schema::create('announcements', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title');
-            $table->text('content');
             $table->uuid('admin_id');
+            $table->string('title');
+            $table->string('thumbnail')->nullable();
+            $table->string('public_id')->nullable();
+            $table->text('content');
             $table->datetime('posted_at');
             $table->foreign('admin_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomepageController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\AnnouncementController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -32,6 +34,27 @@ Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
 
     abort(403, 'Unauthorized');
 })->name('dashboard');
+
+// User Routes
+Route::middleware(['auth', 'verified', 'role:admin'])->prefix('users')->group(function () {
+    Route::get('/', [UserController::class, 'index'])->name('users.index');
+    Route::get('/{id}', [UserController::class, 'show'])->name('users.show');
+    Route::post('/', [UserController::class, 'store'])->name('users.store');
+    Route::put('/{id}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+});
+
+// Announcement Routes
+Route::middleware(['auth', 'verified'])->prefix('announcements')->group(function () {
+    Route::get('/', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('/{id}', [AnnouncementController::class, 'show'])->name('announcements.show');
+
+    Route::middleware('role:admin')->group(function () {
+        Route::post('/', [AnnouncementController::class, 'store'])->name('announcements.store');
+        Route::patch('/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
+        Route::delete('/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+    });
+});
 
 // Class Routes
 Route::middleware(['auth', 'verified'])->prefix('classes')->group(function () {
