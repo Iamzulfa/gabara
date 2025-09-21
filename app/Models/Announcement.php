@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 /**
  * @property string $id
  * @property string $title
+ * @property string $thumbnail
+ * @property string $public_id
  * @property string $content
  * @property string $admin_id
  * @property \Carbon\Carbon $posted_at
@@ -25,6 +27,8 @@ class Announcement extends Model
 
     protected $fillable = [
         'title',
+        'thumbnail',
+        'public_id',
         'content',
         'admin_id',
         'posted_at',
