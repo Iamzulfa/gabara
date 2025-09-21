@@ -50,7 +50,7 @@ class AnnouncementController extends Controller
             abort(403, 'Pengumuman belum dipublikasikan');
         }
 
-        return Inertia::render('Admin/AnnouncementDetail', [
+        return Inertia::render('Announcement/AnnouncementDetail', [
             'announcement' => $announcement,
             'userRole' => $user->role,
         ]);

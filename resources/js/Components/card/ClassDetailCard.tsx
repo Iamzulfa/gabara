@@ -9,10 +9,10 @@ import DiscussionTab from "@/Components/tab/DiscussionTab";
 import GradesTab from "@/Components/tab/GradesTab";
 import PageBreadcrumb from "@/Components/ui/breadcrumb/Breadcrumb";
 
-import { Class, PageProps } from "@/types/types";
+import { ClassDetailPageProps } from "@/types/types";
 
 export default function ClassDetailCard() {
-    const { props } = usePage<PageProps>();
+    const { props } = usePage<ClassDetailPageProps>();
     const { class: classData, userRole } = props;
 
     const [activeTab, setActiveTab] = useState("Kursus");

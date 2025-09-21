@@ -131,12 +131,37 @@ export interface AssignmentForm {
 }
 
 export interface PageProps extends InertiaPageProps {
-    class: Class;
+    class?: Class;
     auth: {
         user: User;
     };
-    userRole: string;
+    userRole?: string;
     errors?: Record<string, string>;
+    announcements?: Announcement[];
+    calendarEvents?: { id: string; title: string; start: string; end: string; type: "assignment" | "announcement" }[];
+    numClasses?: number;
+    deadlines?: Deadline[];
+    progress?: number;
+    ongoingTasks?: number;
+    numStudents?: number;
+    reminders?: Deadline[];
+    numMentors?: number;
+}
+
+export interface AnnouncementPageProps extends InertiaPageProps {
+    auth: {
+        user: User;
+    };
+    announcement: Announcement;
+    userRole: string;
+}
+
+export interface ClassDetailPageProps extends InertiaPageProps {
+    auth: {
+        user: User;
+    };
+    class: Class;
+    userRole: string;
 }
 
 export interface AssignmentPageProps extends InertiaPageProps {
@@ -166,4 +191,24 @@ export interface ParticipantsTabProps {
 export interface ClassDetailCardProps {
     classData: Class;
     userRole: string;
+}
+
+export interface Deadline {
+    id: string;
+    title: string;
+    deadline: string;
+}
+
+export interface Announcement {
+    id: string;
+    title: string;
+    thumbnail: string | null;
+    public_id: string | null;
+    content: string;
+    admin: {
+        id: string;
+        name: string;
+        avatar: string | null;
+    };
+    posted_at: string;
 }

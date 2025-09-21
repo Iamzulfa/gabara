@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomepageController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\EnrollmentController;
@@ -17,23 +18,7 @@ use Inertia\Inertia;
 Route::get('/', [HomepageController::class, 'index'])->name('homepage');
 
 // Dashboard Routes
-Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
-    $user = auth()->user();
-
-    if ($user->hasRole('admin')) {
-        return Inertia::render('Admin/Dashboard');
-    }
-
-    if ($user->hasRole('mentor')) {
-        return Inertia::render('Mentor/Dashboard');
-    }
-
-    if ($user->hasRole('student')) {
-        return Inertia::render('Student/Dashboard');
-    }
-
-    abort(403, 'Unauthorized');
-})->name('dashboard');
+Route::middleware(['auth', 'verified'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // User Routes
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('users')->group(function () {
