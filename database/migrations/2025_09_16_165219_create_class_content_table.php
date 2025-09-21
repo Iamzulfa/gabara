@@ -48,6 +48,7 @@ return new class extends Migration
             $table->uuid('student_id');
             $table->string('submission_content')->nullable()->comment('file or link');
             $table->float('grade')->nullable();
+            $table->string('feedback')->nullable();
             $table->datetime('submitted_at')->nullable();
             $table->string('public_id')->nullable()->comment('Cloudinary public ID for submission file');
             $table->foreign('assignment_id')->references('id')->on('assignments')->onDelete('cascade');

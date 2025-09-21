@@ -64,9 +64,27 @@ class ClassController extends Controller
                             $query->select('id', 'meeting_id', 'link', 'created_at');
                         },
                         'assignments' => function ($query) {
-                            $query->select('id', 'meeting_id', 'title', 'description', 'date_open', 'time_open', 'date_close', 'time_close', 'file_link', 'created_at');
-                        }
+                            $query->select('id', 'meeting_id', 'title', 'description', 'date_open', 'time_open', 'date_close', 'time_close', 'file_link', 'created_at')
+                                ->with(['submissions' => function ($query) {
+                                    $query->select(
+                                        'submissions.id',
+                                        'submissions.assignment_id',
+                                        'submissions.student_id',
+                                        'submissions.feedback',
+                                        'submissions.submission_content',
+                                        'submissions.grade',
+                                        'submissions.submitted_at',
+                                        'submissions.created_at',
+                                        'users.name as student_name'
+                                    )->join('users', 'submissions.student_id', '=', 'users.id');
+                                }]);
+                        },
                     ]);
+            },
+            
+            'enrollments' => function ($query) {
+                $query->select('enrollments.id', 'enrollments.class_id', 'enrollments.student_id')
+                    ->with(['student:id,name,avatar']);
             },
         ])->findOrFail($id);
 

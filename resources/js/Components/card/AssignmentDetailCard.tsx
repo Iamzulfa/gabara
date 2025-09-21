@@ -26,6 +26,7 @@ interface Submission {
     submitted_at?: string;
     submission_content?: string;
     grade?: number;
+    feedback?: string;
 }
 
 interface Assignment {
@@ -66,10 +67,14 @@ export default function AssignmentDetailCard() {
     const [loading, setLoading] = useState(false);
     const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
     const [grade, setGrade] = useState<number | "">("");
+    const [feedback, setFeedback] = useState<string>("");
+
+    console.log('submissions', submissions);
 
     const openModal = (submission: Submission) => {
         setSelectedSubmission(submission);
         setGrade(submission.grade || "");
+        setFeedback(submission.feedback || "");
         setIsModalOpen(true);
     };
 
@@ -77,6 +82,7 @@ export default function AssignmentDetailCard() {
         setIsModalOpen(false);
         setSelectedSubmission(null);
         setGrade("");
+        setFeedback("");
     };
 
     const handleFileSubmit = (e: React.FormEvent) => {
@@ -136,10 +142,12 @@ export default function AssignmentDetailCard() {
 
     const handleGradeSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
+
         if (selectedSubmission && grade !== "") {
             router.post(
                 route("submissions.updateGrade", selectedSubmission.id),
-                { grade },
+                { grade, feedback },
                 {
                     onSuccess: () => {
                         toast.success(`Penilaian untuk ${selectedSubmission.student_name} berhasil disimpan!`);
@@ -152,7 +160,7 @@ export default function AssignmentDetailCard() {
                             toast.error("Gagal menyimpan nilai!");
                         }
                     },
-                    onFinish: () => { },
+                    onFinish: () => setLoading(false),
                 }
             );
         }
@@ -251,34 +259,36 @@ export default function AssignmentDetailCard() {
                         </div>
                     </div>
                 </div>
-                <div className="mt-4 border-t-2 border-gray-200 pt-4 text-sm text-gray-500" dangerouslySetInnerHTML={createMarkup(assignment.description || "")} />
+                <div className="mt-4 border-t-2 border-gray-200 pt-4 text-sm text-gray-500 mb-3" dangerouslySetInnerHTML={createMarkup(assignment.description || "")} />
 
-                <div className="flex gap-3 border-t-2 border-gray-200 pt-4 w-full">
-                    {/* Icon */}
-                    <div className="w-12 h-12 flex items-center justify-center bg-primary rounded-lg">
-                        <FaRegFile size={24} className="text-white" />
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex flex-col w-full">
-                        <div className="flex items-center justify-between">
-                            <h3 className="font-medium text-gray-800">Berkas</h3>
+                {assignment.file_link && (
+                    <div className="flex gap-3 border-t-2 border-gray-200 pt-4 w-full mt-2">
+                        {/* Icon */}
+                        <div className="w-12 h-12 flex items-center justify-center bg-primary rounded-lg">
+                            <FaRegFile size={24} className="text-white" />
                         </div>
 
-                        <div className="mt-1">
-                            <div className="flex justify-between items-center rounded-lg">
-                                <a
-                                    href={assignment.file_link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-primary hover:underline text-sm"
-                                >
-                                    Lihat
-                                </a>
+                        {/* Content */}
+                        <div className="flex flex-col w-full">
+                            <div className="flex items-center justify-between">
+                                <h3 className="font-medium text-gray-800">Berkas</h3>
+                            </div>
+
+                            <div className="mt-1">
+                                <div className="flex justify-between items-center rounded-lg">
+                                    <a
+                                        href={assignment.file_link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-primary hover:underline text-sm cursor-pointer"
+                                    >
+                                        Lihat
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 {isStudent && (
                     <div className="mt-6">
@@ -434,11 +444,19 @@ export default function AssignmentDetailCard() {
                                         <Input value={selectedSubmission?.student_name || ""} readOnly />
                                     </div>
                                     <div>
-                                        <Label>Nilai</Label>
+                                        <Label required={true}>Nilai</Label>
                                         <CurrencyInput
                                             value={Number(grade ?? (selectedSubmission?.grade || 0))}
                                             onChange={(e) => setGrade(e)}
                                             placeholder="Masukkan nilai (0-100)"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label>Umpan Balik</Label>
+                                        <Input
+                                            value={feedback ?? (selectedSubmission?.feedback || "")}
+                                            onChange={(e) => setFeedback(e.target.value)}
+                                            placeholder="Masukkan umpan balik"
                                         />
                                     </div>
                                     <div className="flex justify-end gap-2">

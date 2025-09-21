@@ -140,10 +140,20 @@ class SubmissionController extends Controller
     {
         $request->validate([
             'grade' => 'required|numeric|min:0|max:100',
+            'feedback' => 'nullable|string|max:255',
+        ], [
+            'grade.required' => 'Nilai harus diisi.',
+            'grade.numeric' => 'Nilai harus berupa angka.',
+            'grade.min' => 'Nilai minimal adalah 0.',
+            'grade.max' => 'Nilai maksimal adalah 100.',
+            'feedback.max' => 'Feedback maksimal 255 karakter.',
         ]);
 
         $submission = Submission::findOrFail($submissionId);
-        $submission->update(['grade' => $request->grade]);
+        $submission->update([
+            'grade' => $request->grade,
+            'feedback' => $request->feedback
+        ]);
 
         return redirect()->back()->with('success', 'Nilai berhasil disimpan!');
     }
