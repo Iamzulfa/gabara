@@ -49,30 +49,6 @@ class ValidationHelper
         );
     }
 
-    // public static function meeting($data, $isUpdate = false, $meetingId = null)
-    // {
-    //     $rules = [
-    //         'class_id' => 'required|string|exists:classes,id',
-    //         'title' => 'required|string|max:255',
-    //         'description' => 'required|string',
-    //     ];
-
-    //     return Validator::make(
-    //         $data,
-    //         $rules,
-    //         [
-    //             'class_id.required' => 'ID kelas wajib diisi.',
-    //             'class_id.string' => 'ID kelas harus berupa teks.',
-    //             'class_id.exists' => 'Kelas tidak ditemukan.',
-    //             'title.required' => 'Judul pertemuan wajib diisi.',
-    //             'title.string' => 'Judul pertemuan harus berupa teks.',
-    //             'title.max' => 'Judul pertemuan maksimal 255 karakter.',
-    //             'description.required' => 'Deskripsi pertemuan wajib diisi.',
-    //             'description.string' => 'Deskripsi pertemuan harus berupa teks.',
-    //         ]
-    //     );
-    // }
-
     public static function meeting($data, $isUpdate = false, $meetingId = null)
     {
         $rules = [
@@ -83,10 +59,15 @@ class ValidationHelper
             'assignments' => ['sometimes', 'array'],
             'assignments.*.title' => ['required', 'string', 'max:255'],
             'assignments.*.description' => ['required', 'string'],
-            'assignments.*.date_open' => ['required', 'date'],
-            'assignments.*.time_open' => ['required', 'date_format:H:i'],
+            'assignments.*.date_open' => [
+                'required',
+                'date',
+                $isUpdate ? 'before_or_equal:assignments.*.date_close' : 'after_or_equal:today',
+                'before_or_equal:assignments.*.date_close',
+            ],
+            'assignments.*.time_open' => ['required', 'string'],
             'assignments.*.date_close' => ['required', 'date', 'after_or_equal:assignments.*.date_open'],
-            'assignments.*.time_close' => ['required', 'date_format:H:i'],
+            'assignments.*.time_close' => ['required', 'string', 'after:assignments.*.time_open'],
             'assignments.*.file_link' => ['nullable', 'url'],
         ];
 
@@ -117,13 +98,15 @@ class ValidationHelper
                 'assignments.*.description.string' => 'Deskripsi tugas harus berupa teks.',
                 'assignments.*.date_open.required' => 'Tanggal dibuka wajib diisi.',
                 'assignments.*.date_open.date' => 'Tanggal dibuka harus berupa tanggal yang valid.',
+                'assignments.*.date_open.after_or_equal' => 'Tanggal dibuka tidak boleh sebelum hari ini.',
+                'assignments.*.date_open.before_or_equal' => 'Tanggal dibuka tidak boleh setelah tanggal ditutup.',
                 'assignments.*.time_open.required' => 'Waktu dibuka wajib diisi.',
                 'assignments.*.time_open.date_format' => 'Waktu dibuka harus dalam format HH:mm.',
                 'assignments.*.date_close.required' => 'Tanggal ditutup wajib diisi.',
                 'assignments.*.date_close.date' => 'Tanggal ditutup harus berupa tanggal yang valid.',
                 'assignments.*.date_close.after_or_equal' => 'Tanggal ditutup harus sama atau setelah tanggal dibuka.',
                 'assignments.*.time_close.required' => 'Waktu ditutup wajib diisi.',
-                'assignments.*.time_close.date_format' => 'Waktu ditutup harus dalam format HH:mm.',
+                'assignments.*.time_close.after' => 'Waktu ditutup harus setelah waktu dibuka.',
                 'assignments.*.file_link.url' => 'Link file pendukung harus berupa URL yang valid.',
             ]
         );

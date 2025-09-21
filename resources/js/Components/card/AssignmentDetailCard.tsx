@@ -16,6 +16,7 @@ import { createMarkup } from "@/utils/htmlMarkup";
 import { confirmDialog } from "@/utils/confirmationDialog";
 
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { FaRegFile } from "react-icons/fa";
 
 interface Submission {
     id: string;
@@ -251,6 +252,33 @@ export default function AssignmentDetailCard() {
                     </div>
                 </div>
                 <div className="mt-4 border-t-2 border-gray-200 pt-4 text-sm text-gray-500" dangerouslySetInnerHTML={createMarkup(assignment.description || "")} />
+
+                <div className="flex gap-3 border-t-2 border-gray-200 pt-4 w-full">
+                    {/* Icon */}
+                    <div className="w-12 h-12 flex items-center justify-center bg-primary rounded-lg">
+                        <FaRegFile size={24} className="text-white" />
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex flex-col w-full">
+                        <div className="flex items-center justify-between">
+                            <h3 className="font-medium text-gray-800">Berkas</h3>
+                        </div>
+
+                        <div className="mt-1">
+                            <div className="flex justify-between items-center rounded-lg">
+                                <a
+                                    href={assignment.file_link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary hover:underline text-sm"
+                                >
+                                    Lihat
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {isStudent && (
                     <div className="mt-6">

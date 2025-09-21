@@ -23,10 +23,15 @@ export const useSidebar = () => {
     return context;
 };
 
-export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
-    children,
-}) => {
-    const [isExpanded, setIsExpanded] = useState(true);
+export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [isExpanded, setIsExpanded] = useState<boolean>(() => {
+        if (typeof window !== "undefined") {
+            const saved = localStorage.getItem("sidebar-expanded");
+            return saved ? JSON.parse(saved) : true; // default true
+        }
+        return true;
+    });
+
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -44,14 +49,16 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
 
         handleResize();
         window.addEventListener("resize", handleResize);
-
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     const toggleSidebar = () => {
-        setIsExpanded((prev) => !prev);
+        setIsExpanded((prev) => {
+            const next = !prev;
+            // ✅ simpan ke localStorage setiap kali toggle
+            localStorage.setItem("sidebar-expanded", JSON.stringify(next));
+            return next;
+        });
     };
 
     const toggleMobileSidebar = () => {

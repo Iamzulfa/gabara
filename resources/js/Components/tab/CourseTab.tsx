@@ -59,9 +59,9 @@ export default function CourseTab({ classData }: CourseTabProps) {
         title: "",
         description: "",
         date_open: "",
-        time_open: "",
+        time_open: "00:00",
         date_close: "",
-        time_close: "",
+        time_close: "00:00",
         file_link: "",
         id: undefined,
     });
@@ -106,9 +106,9 @@ export default function CourseTab({ classData }: CourseTabProps) {
                     title: "",
                     description: "",
                     date_open: "",
-                    time_open: "",
+                    time_open: "00:00",
                     date_close: "",
-                    time_close: "",
+                    time_close: "00:00",
                     file_link: "",
                     id: undefined,
                 });
@@ -127,16 +127,16 @@ export default function CourseTab({ classData }: CourseTabProps) {
                 title: "",
                 description: "",
                 date_open: "",
-                time_open: "",
+                time_open: "00:00",
                 date_close: "",
-                time_close: "",
+                time_close: "00:00",
                 file_link: "",
                 id: undefined,
             });
             resetMeeting();
             setServerErrors({});
         } else {
-            toast.error("Anda tidak memiliki izin untuk menambah pertemuan.");
+            // toast.error("Anda tidak memiliki izin untuk menambah pertemuan.");
         }
     }, [userRole, resetMeeting]);
 
@@ -146,116 +146,124 @@ export default function CourseTab({ classData }: CourseTabProps) {
             setEditingMeeting(meeting);
             setServerErrors({});
         } else {
-            toast.error("Anda tidak memiliki izin untuk mengedit pertemuan.");
+            // toast.error("Anda tidak memiliki izin untuk mengedit pertemuan.");
         }
     }, [userRole]);
 
-    const handleSubmitMeeting = useCallback((e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
+    const handleSubmitMeeting = useCallback(
+        (e: React.FormEvent) => {
+            e.preventDefault();
+            setLoading(true);
 
-        if (!meetingData.title || !meetingData.description) {
-            toast.error("Judul dan deskripsi wajib diisi.");
-            setLoading(false);
-            return;
-        }
+            if (!meetingData.title || !meetingData.description) {
+                // toast.error("Judul dan deskripsi wajib diisi.");
+                setLoading(false);
+                return;
+            }
 
-        const validMaterials = materialLinks
-            .filter(m => m.link.trim() !== "")
-            .map(m => ({ link: m.link, id: m.id }));
-        setMeetingData("materials", validMaterials);
+            const validMaterials = materialLinks
+                .filter((m) => m.link.trim() !== "")
+                .map((m) => ({ link: m.link, id: m.id }));
+            setMeetingData("materials", validMaterials);
 
-        const validAssignments = showAddAssignment && meetingAssignmentData.title &&
-            meetingAssignmentData.description && meetingAssignmentData.date_open &&
-            meetingAssignmentData.time_open && meetingAssignmentData.date_close &&
-            meetingAssignmentData.time_close
-            ? [{
-                title: meetingAssignmentData.title,
-                description: meetingAssignmentData.description,
-                date_open: meetingAssignmentData.date_open,
-                time_open: meetingAssignmentData.time_open,
-                date_close: meetingAssignmentData.date_close,
-                time_close: meetingAssignmentData.time_close,
-                file_link: meetingAssignmentData.file_link || undefined,
-                id: meetingAssignmentData.id,
-            }]
-            : [];
+            const validAssignments =
+                showAddAssignment &&
+                    meetingAssignmentData.title &&
+                    meetingAssignmentData.description &&
+                    meetingAssignmentData.date_open &&
+                    meetingAssignmentData.time_open &&
+                    meetingAssignmentData.date_close &&
+                    meetingAssignmentData.time_close
+                    ? [
+                        {
+                            title: meetingAssignmentData.title,
+                            description: meetingAssignmentData.description,
+                            date_open: meetingAssignmentData.date_open,
+                            time_open: meetingAssignmentData.time_open || "00:00",
+                            date_close: meetingAssignmentData.date_close,
+                            time_close: meetingAssignmentData.time_close || "00:00",
+                            file_link: meetingAssignmentData.file_link || undefined,
+                            id: meetingAssignmentData.id,
+                        },
+                    ]
+                    : [];
 
-        if (showAddAssignment && !validAssignments.length) {
-            toast.error("Semua field tugas wajib diisi.");
-            setLoading(false);
-            return;
-        }
+            if (showAddAssignment && !validAssignments.length) {
+                // toast.error("Semua field tugas wajib diisi.");
+                setLoading(false);
+                return;
+            }
 
-        setMeetingData("assignments", validAssignments);
+            setMeetingData("assignments", validAssignments);
 
-        const formData = new FormData();
-        formData.append("class_id", classData.id);
-        formData.append("title", meetingData.title);
-        formData.append("description", meetingData.description);
-
-        validMaterials.forEach((material, index) => {
-            formData.append(`materials[${index}][link]`, material.link);
-            if (material.id) formData.append(`materials[${index}][id]`, material.id);
-        });
-
-        validAssignments.forEach((assignment, index) => {
-            formData.append(`assignments[${index}][title]`, assignment.title);
-            formData.append(`assignments[${index}][description]`, assignment.description);
-            formData.append(`assignments[${index}][date_open]`, assignment.date_open);
-            formData.append(`assignments[${index}][time_open]`, assignment.time_open);
-            formData.append(`assignments[${index}][date_close]`, assignment.date_close);
-            formData.append(`assignments[${index}][time_close]`, assignment.time_close);
-            if (assignment.file_link) formData.append(`assignments[${index}][file_link]`, assignment.file_link);
-            if (assignment.id) formData.append(`assignments[${index}][id]`, assignment.id);
-        });
-
-        if (editingMeeting) {
-            formData.append("_method", "PATCH");
-            router.post(route("meetings.update", editingMeeting.id), formData, {
-                forceFormData: true,
-                onSuccess: () => {
-                    toast.success("Pertemuan berhasil diperbarui.");
-                    setEditingMeeting(null);
-                    resetMeeting();
-                    setServerErrors({});
-                },
-                onError: (errors) => {
-                    setServerErrors(errors);
-                    toast.error("Gagal memperbarui pertemuan.");
-                },
-                onFinish: () => setLoading(false),
+            const formData = new FormData();
+            formData.append("class_id", classData.id);
+            formData.append("title", meetingData.title);
+            formData.append("description", meetingData.description);
+            validMaterials.forEach((material, index) => {
+                formData.append(`materials[${index}][link]`, material.link);
+                if (material.id) formData.append(`materials[${index}][id]`, material.id);
             });
-        } else {
-            router.post(route("meetings.store"), formData, {
-                forceFormData: true,
-                onSuccess: () => {
-                    toast.success("Pertemuan berhasil ditambahkan.");
-                    setIsAdding(false);
-                    setShowAddMaterial(false);
-                    setShowAddAssignment(false);
-                    setMaterialLinks([{ link: "", id: undefined }]);
-                    setMeetingAssignmentData({
-                        title: "",
-                        description: "",
-                        date_open: "",
-                        time_open: "",
-                        date_close: "",
-                        time_close: "",
-                        file_link: "",
-                        id: undefined,
-                    });
-                    resetMeeting();
-                    setServerErrors({});
-                },
-                onError: (errors) => {
-                    setServerErrors(errors);
-                    toast.error("Gagal menambahkan pertemuan.");
-                },
-                onFinish: () => setLoading(false),
+            validAssignments.forEach((assignment, index) => {
+                formData.append(`assignments[${index}][title]`, assignment.title);
+                formData.append(`assignments[${index}][description]`, assignment.description);
+                formData.append(`assignments[${index}][date_open]`, assignment.date_open);
+                formData.append(`assignments[${index}][time_open]`, assignment.time_open);
+                formData.append(`assignments[${index}][date_close]`, assignment.date_close);
+                formData.append(`assignments[${index}][time_close]`, assignment.time_close);
+                if (assignment.file_link)
+                    formData.append(`assignments[${index}][file_link]`, assignment.file_link);
+                if (assignment.id) formData.append(`assignments[${index}][id]`, assignment.id);
             });
-        }
-    }, [meetingData, classData.id, editingMeeting, resetMeeting, materialLinks, showAddAssignment, meetingAssignmentData]);
+
+            if (editingMeeting) {
+                formData.append("_method", "PATCH");
+                router.post(route("meetings.update", editingMeeting.id), formData, {
+                    forceFormData: true,
+                    onSuccess: () => {
+                        // toast.success("Pertemuan berhasil diperbarui.");
+                        setEditingMeeting(null);
+                        resetMeeting();
+                        setServerErrors({});
+                    },
+                    onError: (errors) => {
+                        setServerErrors(errors);
+                        // toast.error("Gagal memperbarui pertemuan.");
+                    },
+                    onFinish: () => setLoading(false),
+                });
+            } else {
+                router.post(route("meetings.store"), formData, {
+                    forceFormData: true,
+                    onSuccess: () => {
+                        // toast.success("Pertemuan berhasil ditambahkan.");
+                        setIsAdding(false);
+                        setShowAddMaterial(false);
+                        setShowAddAssignment(false);
+                        setMaterialLinks([{ link: "", id: undefined }]);
+                        setMeetingAssignmentData({
+                            title: "",
+                            description: "",
+                            date_open: "",
+                            time_open: "00:00",
+                            date_close: "",
+                            time_close: "00:00",
+                            file_link: "",
+                            id: undefined,
+                        });
+                        resetMeeting();
+                        setServerErrors({});
+                    },
+                    onError: (errors) => {
+                        setServerErrors(errors);
+                        // toast.error("Gagal menambahkan pertemuan.");
+                    },
+                    onFinish: () => setLoading(false),
+                });
+            }
+        },
+        [meetingData, classData.id, editingMeeting, resetMeeting, materialLinks, showAddAssignment, meetingAssignmentData]
+    );
 
     const handleDeleteMeeting = useCallback(async (id: string) => {
         if (userRole === "admin" || userRole === "mentor") {
@@ -267,14 +275,14 @@ export default function CourseTab({ classData }: CourseTabProps) {
             })) {
                 router.delete(route("meetings.destroy", id), {
                     onSuccess: () => {
-                        toast.success("Pertemuan berhasil dihapus.");
+                        // toast.success("Pertemuan berhasil dihapus.");
                         setMeetings(prev => prev.filter(m => m.id !== id));
                     },
                     onError: () => toast.error("Gagal menghapus pertemuan.")
                 });
             }
         } else {
-            toast.error("Anda tidak memiliki izin untuk menghapus pertemuan.");
+            // toast.error("Anda tidak memiliki izin untuk menghapus pertemuan.");
         }
     }, [userRole]);
 
@@ -308,14 +316,14 @@ export default function CourseTab({ classData }: CourseTabProps) {
             })) {
                 router.delete(route("materials.destroy", materialId), {
                     onSuccess: () => {
-                        toast.success("Berkas berhasil dihapus.");
+                        // toast.success("Berkas berhasil dihapus.");
                         router.reload({ only: ['meetings'] });
                     },
                     onError: () => toast.error("Gagal menghapus berkas.")
                 });
             }
         } else {
-            toast.error("Anda tidak memiliki izin untuk menghapus berkas.");
+            // toast.error("Anda tidak memiliki izin untuk menghapus berkas.");
         }
     }, [userRole]);
 
@@ -361,14 +369,14 @@ export default function CourseTab({ classData }: CourseTabProps) {
             })) {
                 router.delete(route("assignments.destroy", assignmentId), {
                     onSuccess: () => {
-                        toast.success("Tugas berhasil dihapus.");
+                        // toast.success("Tugas berhasil dihapus.");
                         router.reload({ only: ['meetings'] });
                     },
                     onError: () => toast.error("Gagal menghapus tugas.")
                 });
             }
         } else {
-            toast.error("Anda tidak memiliki izin untuk menghapus tugas.");
+            // toast.error("Anda tidak memiliki izin untuk menghapus tugas.");
         }
     }, [userRole]);
 
@@ -675,7 +683,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
                                                             href={material.link}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="text-primary hover:underline text-sm"
+                                                            className="font-medium text-primary hover:underline text-sm"
                                                         >
                                                             Lihat
                                                         </a>

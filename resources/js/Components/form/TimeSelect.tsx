@@ -15,7 +15,12 @@ const TimeSelect: React.FC<TimeSelectProps> = ({ value, onChange }) => {
     const hourContainerRef = useRef<HTMLDivElement>(null);
     const minuteContainerRef = useRef<HTMLDivElement>(null);
 
-    // Data untuk hours dan minutes
+    useEffect(() => {
+        if (!value) {
+            onChange("00:00");
+        }
+    }, [value, onChange]);
+
     const hours = Array.from({ length: 24 }, (_, i) => {
         const h = i.toString().padStart(2, "0");
         return { value: h, label: h };
@@ -26,7 +31,6 @@ const TimeSelect: React.FC<TimeSelectProps> = ({ value, onChange }) => {
         return { value: m, label: m };
     });
 
-    // Auto-scroll ke value yang dipilih saat picker dibuka
     useEffect(() => {
         if (isHourOpen && hourRef.current) {
             const selected = hourRef.current.querySelector(`[data-value="${hour}"]`);
@@ -42,7 +46,6 @@ const TimeSelect: React.FC<TimeSelectProps> = ({ value, onChange }) => {
         }
     }, [isHourOpen, isMinuteOpen, hour, minute]);
 
-    // Tutup picker saat klik di luar
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (hourContainerRef.current && !hourContainerRef.current.contains(event.target as Node)) {
@@ -90,9 +93,10 @@ const TimeSelect: React.FC<TimeSelectProps> = ({ value, onChange }) => {
                                     data-value={h.value}
                                     onClick={() => handleHourChange(h.value)}
                                     className={`w-full py-1.5 text-sm font-medium transition-all duration-200
-                                        ${hour === h.value
-                                            ? "text-primary dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30"
-                                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        ${
+                                            hour === h.value
+                                                ? "text-primary dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30"
+                                                : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                                         } snap-center`}
                                 >
                                     {h.label}
@@ -127,9 +131,10 @@ const TimeSelect: React.FC<TimeSelectProps> = ({ value, onChange }) => {
                                     data-value={m.value}
                                     onClick={() => handleMinuteChange(m.value)}
                                     className={`w-full py-1.5 text-sm font-medium transition-all duration-200
-                                        ${minute === m.value
-                                            ? "text-primary dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30"
-                                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        ${
+                                            minute === m.value
+                                                ? "text-primary dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30"
+                                                : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                                         } snap-center`}
                                 >
                                     {m.label}

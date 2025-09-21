@@ -78,45 +78,84 @@ class MeetingController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        return
-            DB::transaction(function () use ($request, $meeting) {
-                $meeting->update([
-                    'title' => $request->title,
-                    'description' => $request->description,
-                ]);
+        return DB::transaction(function () use ($request, $meeting) {
+            $meeting->update([
+                'title' => $request->title,
+                'description' => $request->description,
+            ]);
 
-                if ($request->has('materials')) {
-                    $meeting->materials()->delete();
-                    foreach ($request->materials as $materialData) {
-                        if (!empty($materialData['link'])) {
-                            Material::create([
-                                'meeting_id' => $meeting->id,
+            if ($request->has('materials')) {
+                $materialIds = collect($request->materials)
+                    ->pluck('id')
+                    ->filter()
+                    ->toArray();
+
+                $meeting->materials()
+                    ->whereNotIn('id', $materialIds)
+                    ->delete();
+
+                foreach ($request->materials as $materialData) {
+                    if (!empty($materialData['id'])) {
+                        $material = Material::find($materialData['id']);
+                        if ($material) {
+                            $material->update([
                                 'link' => $materialData['link'],
                             ]);
                         }
-                    }
-                }
-
-                if ($request->has('assignments')) {
-                    $meeting->assignments()->delete();
-                    foreach ($request->assignments as $assignmentData) {
-                        if (!empty($assignmentData['title'])) {
-                            Assignment::create([
+                    } else {
+                        if (!empty($materialData['link'])) {
+                            Material::create([
                                 'meeting_id' => $meeting->id,
-                                'title' => $assignmentData['title'],
-                                'description' => $assignmentData['description'],
-                                'date_open' => $assignmentData['date_open'],
-                                'time_open' => $assignmentData['time_open'],
-                                'date_close' => $assignmentData['date_close'],
-                                'time_close' => $assignmentData['time_close'],
-                                'file_link' => $assignmentData['file_link'] ?? null,
+                                'link'       => $materialData['link'],
                             ]);
                         }
                     }
                 }
+            }
 
-                return redirect()->back()->with('success', 'Pertemuan berhasil diperbarui.');
-            });
+            if ($request->has('assignments')) {
+                $assignmentIds = collect($request->assignments)
+                    ->pluck('id')
+                    ->filter()
+                    ->toArray();
+
+                $meeting->assignments()
+                    ->whereNotIn('id', $assignmentIds)
+                    ->delete();
+
+                foreach ($request->assignments as $assignmentData) {
+                    if (!empty($assignmentData['id'])) {
+                        $assignment = Assignment::find($assignmentData['id']);
+                        if ($assignment) {
+                            $assignment->update([
+                                'title'       => $assignmentData['title'],
+                                'description' => $assignmentData['description'],
+                                'date_open'   => $assignmentData['date_open'],
+                                'time_open'   => $assignmentData['time_open'],
+                                'date_close'  => $assignmentData['date_close'],
+                                'time_close'  => $assignmentData['time_close'],
+                                'file_link'   => $assignmentData['file_link'] ?? null,
+                            ]);
+                        }
+                    } else {
+                        if (!empty($assignmentData['title'])) {
+                            Assignment::create([
+                                'meeting_id'  => $meeting->id,
+                                'title'       => $assignmentData['title'],
+                                'description' => $assignmentData['description'],
+                                'date_open'   => $assignmentData['date_open'],
+                                'time_open'   => $assignmentData['time_open'],
+                                'date_close'  => $assignmentData['date_close'],
+                                'time_close'  => $assignmentData['time_close'],
+                                'file_link'   => $assignmentData['file_link'] ?? null,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return redirect()->back()->with('success', 'Pertemuan berhasil diperbarui.');
+        });
     }
 
     public function destroy($id)
