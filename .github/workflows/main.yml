@@ -3,7 +3,7 @@ name: Deploy to VPS
 on:
   push:
     branches:
-      - main
+      - staging
 
 jobs:
   deploy:
@@ -24,13 +24,13 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-            cd ~/gabara/gabara
+            cd ~/gabara/staging
 
             # Bersihkan dan tarik kode terbaru
             git fetch --all
-            git reset --hard origin/main
+            git reset --hard origin/staging
             git clean -fd
-            git pull origin main
+            git pull origin staging
 
             # Instal dependensi Composer
             composer install --no-interaction --prefer-dist --optimize-autoloader
