@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { useForm, usePage, router } from "@inertiajs/react";
-import { toast } from "react-toastify";
-
 import { Modal } from "@/Components/ui/modal";
 import Input from "@/Components/form/input/InputField";
 import Select from "@/Components/form/Select";
@@ -123,7 +121,6 @@ export const ModalClass = ({ isOpen, onClose, classData }: ModalClassProps) => {
         if (role === "student") {
             router.post(route("enrollments.store"), { enrollment_code: data.enrollment_code }, {
                 onSuccess: () => {
-                    toast.success("Berhasil bergabung ke kelas");
                     reset();
                     onClose();
                 },
@@ -152,7 +149,6 @@ export const ModalClass = ({ isOpen, onClose, classData }: ModalClassProps) => {
             router.post(route("classes.update", classData.id), formData, {
                 forceFormData: true,
                 onSuccess: () => {
-                    toast.success("Kelas berhasil diperbarui");
                     reset();
                     setImageFile(null);
                     setImagePreview(null);
@@ -167,7 +163,6 @@ export const ModalClass = ({ isOpen, onClose, classData }: ModalClassProps) => {
             router.post(route("classes.store"), formData, {
                 forceFormData: true,
                 onSuccess: () => {
-                    toast.success("Kelas berhasil ditambahkan");
                     reset();
                     setImageFile(null);
                     setImagePreview(null);

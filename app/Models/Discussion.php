@@ -23,6 +23,7 @@ class Discussion extends Model
     protected $table = 'discussions';
     public $incrementing = false;
     protected $keyType = 'string';
+    public $timestamps = true;
 
     protected $fillable = [
         'class_id',
@@ -48,6 +49,11 @@ class Discussion extends Model
 
     public function discussionReplies()
     {
-        return $this->hasMany(DiscussionReply::class, 'discussion_id');
+        return $this->hasMany(DiscussionReply::class, 'discussion_id')->with('user')->orderBy('posted_at', 'asc');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

@@ -28,6 +28,7 @@ class DiscussionReply extends Model
         'user_id',
         'reply_text',
         'posted_at',
+        'parent_id',
     ];
 
     protected $casts = [
@@ -43,4 +44,26 @@ class DiscussionReply extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function parent()
+    {
+        return $this->belongsTo(DiscussionReply::class, 'parent_id');
+    }
+
+    public function children()
+{
+    return $this->hasMany(DiscussionReply::class, 'parent_id')
+        ->with(['user:id,name,avatar', 'children'])
+        ->orderBy('posted_at', 'asc');
+}
+
+
+    protected static function booted()
+{
+    static::creating(function ($reply) {
+        if (empty($reply->posted_at)) {
+            $reply->posted_at = now();
+        }
+    });
+}
 }

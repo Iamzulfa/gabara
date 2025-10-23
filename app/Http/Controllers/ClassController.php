@@ -51,56 +51,87 @@ class ClassController extends Controller
     }
 
     public function show($id)
-    {
-        $user = Auth::user();
-        $class = ClassModel::with([
-            'mentor:id,name,avatar',
-            'enrollments.student:id,name,avatar',
-            'discussions',
-            'meetings' => function ($query) {
-                $query->select('id', 'class_id', 'title', 'description', 'created_at')
-                    ->with([
-                        'materials' => function ($query) {
-                            $query->select('id', 'meeting_id', 'link', 'created_at');
-                        },
-                        'assignments' => function ($query) {
-                            $query->select('id', 'meeting_id', 'title', 'description', 'date_open', 'time_open', 'date_close', 'time_close', 'file_link', 'created_at')
-                                ->with(['submissions' => function ($query) {
-                                    $query->select(
-                                        'submissions.id',
-                                        'submissions.assignment_id',
-                                        'submissions.student_id',
-                                        'submissions.feedback',
-                                        'submissions.submission_content',
-                                        'submissions.grade',
-                                        'submissions.submitted_at',
-                                        'submissions.created_at',
-                                        'users.name as student_name'
-                                    )->join('users', 'submissions.student_id', '=', 'users.id');
-                                }]);
-                        },
-                    ]);
-            },
-            
-            'enrollments' => function ($query) {
-                $query->select('enrollments.id', 'enrollments.class_id', 'enrollments.student_id')
-                    ->with(['student:id,name,avatar']);
-            },
-        ])->findOrFail($id);
+{
+    $user = Auth::user();
 
-        if ($user->role === 'student' && !$class->visibility) {
-            abort(403, 'Akses tidak diizinkan');
-        }
+    $class = ClassModel::with([
+        'mentor:id,name,avatar',
+        'enrollments.student:id,name,avatar',
+        'discussions',
+        'meetings' => function ($query) {
+            $query->select('id', 'class_id', 'title', 'description', 'created_at')
+                ->with([
+                    'materials' => function ($query) {
+                        $query->select('id', 'meeting_id', 'link', 'created_at');
+                    },
+                    'assignments' => function ($query) {
+                        $query->select(
+                            'id',
+                            'meeting_id',
+                            'title',
+                            'description',
+                            'date_open',
+                            'time_open',
+                            'date_close',
+                            'time_close',
+                            'file_link',
+                            'created_at'
+                        )->with(['submissions' => function ($query) {
+                            $query->select(
+                                'submissions.id',
+                                'submissions.assignment_id',
+                                'submissions.student_id',
+                                'submissions.feedback',
+                                'submissions.submission_content',
+                                'submissions.grade',
+                                'submissions.submitted_at',
+                                'submissions.created_at',
+                                'users.name as student_name'
+                            )->join('users', 'submissions.student_id', '=', 'users.id');
+                        }]);
+                    },
+                ]);
+        },
+        'enrollments' => function ($query) {
+            $query->select('enrollments.id', 'enrollments.class_id', 'enrollments.student_id')
+                ->with(['student:id,name,avatar']);
+        },
+        // ========================== QUIZ ==========================
+        'quizzes' => function ($query) use ($user) {
+            $query->withCount('questions')
+                  ->with(['attempts' => function ($q) use ($user) {
+                      if ($user->role === 'student') {
+                          // student hanya ambil attempt sendiri
+                          $q->where('student_id', $user->id);
+                      } else {
+                          // mentor/admin ambil semua attempt + student info
+                          $q->with('student:id,name');
+                      }
+                  }])
+                  ->orderByDesc('created_at');
 
-        if ($user->role === 'student' && !$class->enrollments->contains('student_id', $user->id)) {
-            abort(403, 'Anda belum terdaftar di kelas ini');
-        }
+            if ($user->role === 'student') {
+                $query->where('status', 'Diterbitkan');
+            }
+        },
+        // ==========================================================
+    ])->findOrFail($id);
 
-        return Inertia::render('Classes/ClassDetail', [
-            'class' => $class,
-            'userRole' => $user->role,
-        ]);
+    if ($user->role === 'student' && !$class->visibility) {
+        abort(403, 'Akses tidak diizinkan');
     }
+
+    if ($user->role === 'student' && !$class->enrollments->contains('student_id', $user->id)) {
+        abort(403, 'Anda belum terdaftar di kelas ini');
+    }
+
+    return Inertia::render('Classes/ClassDetail', [
+        'class' => $class,
+        'userRole' => $user->role,
+    ]);
+}
+
+
 
     public function store(Request $request)
     {

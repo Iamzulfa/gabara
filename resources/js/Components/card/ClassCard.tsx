@@ -1,7 +1,5 @@
 import { useState, useCallback } from "react";
 import { router, usePage } from "@inertiajs/react";
-import { toast } from "react-toastify";
-
 import { ModalClass } from "../modal/ClassModal";
 import Button from "@/Components/ui/button/Button";
 import Badge from "@/Components/ui/badge/Badge";
@@ -42,11 +40,9 @@ export default function ClassCard() {
         router.delete(route("classes.destroy", id), {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success("Kelas berhasil dihapus");
                 setDeletingId(null);
             },
             onError: () => {
-                toast.error("Gagal menghapus kelas");
                 setDeletingId(null);
             },
         });

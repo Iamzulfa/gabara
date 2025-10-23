@@ -74,9 +74,11 @@ export interface Discussion {
     content: string;
     created_at: string;
     user_id: string;
+    status: "open" | "closed";
 }
 
 export interface Class {
+    quizzes: any;
     id: string;
     name: string;
     description: string;
@@ -162,6 +164,73 @@ export interface ClassDetailPageProps extends InertiaPageProps {
     };
     class: Class;
     userRole: string;
+}
+
+export interface QuizInfoPageProps extends InertiaPageProps {
+  auth: {
+    user: User;
+  };
+
+  classData?: {
+    id: string;
+    name: string;
+  };
+
+
+  quiz?: {
+    id: string;
+    title: string;
+    description?: string;       
+    status: string;             
+    open_datetime?: string;     
+    close_datetime?: string;
+    time_limit_minutes?: number;
+    attempts_allowed?: number;
+    questions_count?: number;
+    questions?: {
+      id: string;
+      question_text: string;
+      type?: "pilihan_ganda" | "true_false" | "esai";
+      options?: {
+        text: string;
+        is_correct: boolean;
+      }[];
+    }[];
+    created_at?: string;
+    updated_at?: string;
+  };
+
+  attempt?: {
+    id: string;
+    quiz_id: string;
+    user_id: string;
+    started_at: string;
+    completed_at?: string;
+    score?: number;
+    total_questions?: number;
+    correct_answers?: number;
+    incorrect_answers?: number;
+    questions_attempted?: number;
+    finished_at?: string;
+    status: "in_progress" | "finished" | "not_started";
+  };
+
+    attempts?: QuizAttemptType[];
+    
+
+  can_attempt: boolean;
+  message?: string;
+}
+
+export interface QuizAttemptType {
+  id: string;
+  quiz_id: string;
+  student_id: string;
+  started_at: string;
+  finished_at?: string;
+  score?: number;
+  status: "in_progress" | "finished" | "not_started";
+  answers?: any[];
 }
 
 export interface AssignmentPageProps extends InertiaPageProps {

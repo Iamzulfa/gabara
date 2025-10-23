@@ -13,7 +13,7 @@ export const navConfig: Record<string, any[]> = {
     mentor: [
         { icon: <LuLayoutDashboard />, name: "Dashboard", path: "/dashboard" },
         { icon: <MdOutlineClass />, name: "Kelasku", path: "/classes" },
-        { icon: <MdOutlineQuiz />, name: "Kuis", path: "/quiz" },
+        { icon: <MdOutlineQuiz />, name: "Kuis", path: "/quizzes" },
     ],
     student: [
         { icon: <LuLayoutDashboard />, name: "Dashboard", path: "/dashboard" },

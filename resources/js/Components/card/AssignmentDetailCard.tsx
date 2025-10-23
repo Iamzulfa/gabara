@@ -1,6 +1,5 @@
 import { usePage } from "@inertiajs/react";
 import { PageProps as InertiaPageProps } from "@inertiajs/core";
-import { toast } from "react-toastify";
 import { useState, useCallback } from "react";
 import { router } from "@inertiajs/react";
 
@@ -93,7 +92,6 @@ export default function AssignmentDetailCard() {
         const file = formData.get("file") as File;
         const allowedTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
         if (file && !allowedTypes.includes(file.type)) {
-            toast.error("Hanya file dokumen (PDF, DOCX) yang diperbolehkan!");
             return;
         }
 
@@ -104,15 +102,7 @@ export default function AssignmentDetailCard() {
                 {
                     forceFormData: true,
                     onSuccess: () => {
-                        toast.success("Tugas berhasil diperbarui!");
                         closeModal();
-                    },
-                    onError: (errors) => {
-                        if (errors.error) {
-                            toast.error(errors.error);
-                        } else {
-                            toast.error("Gagal memperbarui tugas!");
-                        }
                     },
                     onFinish: () => setLoading(false),
                 }
@@ -124,15 +114,7 @@ export default function AssignmentDetailCard() {
                 {
                     forceFormData: true,
                     onSuccess: () => {
-                        toast.success("Tugas berhasil dikirim!");
                         closeModal();
-                    },
-                    onError: (errors) => {
-                        if (errors.error) {
-                            toast.error(errors.error);
-                        } else {
-                            toast.error("Gagal mengirim tugas!");
-                        }
                     },
                     onFinish: () => setLoading(false),
                 }
@@ -150,15 +132,7 @@ export default function AssignmentDetailCard() {
                 { grade, feedback },
                 {
                     onSuccess: () => {
-                        toast.success(`Penilaian untuk ${selectedSubmission.student_name} berhasil disimpan!`);
                         closeModal();
-                    },
-                    onError: (errors) => {
-                        if (errors.error) {
-                            toast.error(errors.error);
-                        } else {
-                            toast.error("Gagal menyimpan nilai!");
-                        }
                     },
                     onFinish: () => setLoading(false),
                 }
@@ -227,10 +201,7 @@ export default function AssignmentDetailCard() {
         });
 
         if (confirmed) {
-            router.delete(route("submissions.destroy", studentSubmission.id), {
-                onSuccess: () => toast.success("Pengajuan berhasil dihapus!"),
-                onError: () => toast.error("Gagal menghapus pengajuan!"),
-            });
+            router.delete(route("submissions.destroy", studentSubmission.id));
         }
     }, [studentSubmission]);
 

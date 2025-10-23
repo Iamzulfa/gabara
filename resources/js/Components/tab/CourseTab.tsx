@@ -1,13 +1,14 @@
 import { useState, useCallback, useEffect } from "react";
 import { useForm, usePage, router, Link } from "@inertiajs/react";
-import { toast } from "react-toastify";
-
 import Button from "@/Components/ui/button/Button";
 import Input from "@/Components/form/input/InputField";
 import Label from "@/Components/form/Label";
 import DatePicker from "@/Components/form/date-picker";
 import TimeSelect from "@/Components/form/TimeSelect";
 import RichTextEditor from "@/Components/form/RichTextEditor";
+
+import { MdOutlineQuiz } from "react-icons/md";
+
 
 import { createMarkup } from "@/utils/htmlMarkup";
 import { confirmDialog } from "@/utils/confirmationDialog";
@@ -135,9 +136,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
             });
             resetMeeting();
             setServerErrors({});
-        } else {
-            toast.error("Anda tidak memiliki izin untuk menambah pertemuan.");
-        }
+        } 
     }, [userRole, resetMeeting]);
 
     const handleEditMeeting = useCallback((meeting: Meeting) => {
@@ -145,9 +144,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
             setIsAdding(false);
             setEditingMeeting(meeting);
             setServerErrors({});
-        } else {
-            toast.error("Anda tidak memiliki izin untuk mengedit pertemuan.");
-        }
+        } 
     }, [userRole]);
 
     const handleSubmitMeeting = useCallback(
@@ -156,7 +153,6 @@ export default function CourseTab({ classData }: CourseTabProps) {
             setLoading(true);
 
             if (!meetingData.title || !meetingData.description) {
-                toast.error("Judul dan deskripsi wajib diisi.");
                 setLoading(false);
                 return;
             }
@@ -189,7 +185,6 @@ export default function CourseTab({ classData }: CourseTabProps) {
                     : [];
 
             if (showAddAssignment && !validAssignments.length) {
-                toast.error("Semua field tugas wajib diisi.");
                 setLoading(false);
                 return;
             }
@@ -221,22 +216,19 @@ export default function CourseTab({ classData }: CourseTabProps) {
                 router.post(route("meetings.update", editingMeeting.id), formData, {
                     forceFormData: true,
                     onSuccess: () => {
-                        toast.success("Pertemuan berhasil diperbarui.");
                         setEditingMeeting(null);
                         resetMeeting();
                         setServerErrors({});
                     },
                     onError: (errors) => {
                         setServerErrors(errors);
-                        toast.error("Gagal memperbarui pertemuan.");
                     },
                     onFinish: () => setLoading(false),
                 });
             } else {
-                router.post(route("meetings.store"), formData, {
+                router.post(route("meetings.store", { class: classData.id }), formData, {
                     forceFormData: true,
                     onSuccess: () => {
-                        toast.success("Pertemuan berhasil ditambahkan.");
                         setIsAdding(false);
                         setShowAddMaterial(false);
                         setShowAddAssignment(false);
@@ -256,7 +248,6 @@ export default function CourseTab({ classData }: CourseTabProps) {
                     },
                     onError: (errors) => {
                         setServerErrors(errors);
-                        toast.error("Gagal menambahkan pertemuan.");
                     },
                     onFinish: () => setLoading(false),
                 });
@@ -275,14 +266,10 @@ export default function CourseTab({ classData }: CourseTabProps) {
             })) {
                 router.delete(route("meetings.destroy", id), {
                     onSuccess: () => {
-                        toast.success("Pertemuan berhasil dihapus.");
                         setMeetings(prev => prev.filter(m => m.id !== id));
                     },
-                    onError: () => toast.error("Gagal menghapus pertemuan.")
                 });
             }
-        } else {
-            toast.error("Anda tidak memiliki izin untuk menghapus pertemuan.");
         }
     }, [userRole]);
 
@@ -316,15 +303,11 @@ export default function CourseTab({ classData }: CourseTabProps) {
             })) {
                 router.delete(route("materials.destroy", materialId), {
                     onSuccess: () => {
-                        toast.success("Berkas berhasil dihapus.");
                         router.reload({ only: ['meetings'] });
                     },
-                    onError: () => toast.error("Gagal menghapus berkas.")
                 });
             }
-        } else {
-            toast.error("Anda tidak memiliki izin untuk menghapus berkas.");
-        }
+        } 
     }, [userRole]);
 
     const handleAddAssignmentInForm = useCallback(() => {
@@ -369,14 +352,10 @@ export default function CourseTab({ classData }: CourseTabProps) {
             })) {
                 router.delete(route("assignments.destroy", assignmentId), {
                     onSuccess: () => {
-                        toast.success("Tugas berhasil dihapus.");
                         router.reload({ only: ['meetings'] });
                     },
-                    onError: () => toast.error("Gagal menghapus tugas.")
                 });
             }
-        } else {
-            toast.error("Anda tidak memiliki izin untuk menghapus tugas.");
         }
     }, [userRole]);
 
@@ -422,6 +401,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
 
     return (
         <>
+
             <div className="mt-6 rounded-lg border border-gray-200 p-6">
                 <h2 className="text-lg md:text-xl font-semibold text-gray-800">Deskripsi Kelas</h2>
                 <div
@@ -763,6 +743,71 @@ export default function CourseTab({ classData }: CourseTabProps) {
                     )}
                 </div>
             ))}
+
+            {/* =========================
+   INGAT!!! MASUKKAN QUIZ SECTION DISINI!!!
+   ========================= */}
+            {/* =========================
+   QUIZ SECTION - class-scoped, tampilkan setelah daftar pertemuan
+   ========================= */}
+            <div className="mt-6 rounded-lg border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 flex items-center justify-center bg-amber-500 rounded-lg">
+                            <MdOutlineQuiz size={22} className="text-white" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg md:text-xl font-semibold text-gray-800">Kuis</h2>
+                            <p className="text-sm text-gray-500 mt-1">Kumpulan kuis yang terkait dengan kelas ini</p>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div className="mt-4 space-y-3">
+                    {classData.quizzes && classData.quizzes.length > 0 ? (
+                        classData.quizzes.map((quiz: any) => (
+                            <div key={quiz.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white rounded-lg border gap-4">
+                                {/* Konten Kiri (Info Kuis) */}
+                                <div className="flex-grow">
+                                    <h3 className="font-medium text-gray-800">{quiz.title}</h3>
+
+                                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                                        {quiz.description || "Tidak ada deskripsi."}
+                                    </p>
+
+                                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                                        <span className={`px-2 py-1 rounded-full font-medium ${quiz.status === 'Diterbitkan' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                            {quiz.status ?? "Draf"}
+                                        </span>
+                                        <span className="px-2 py-1 rounded-full font-medium bg-blue-100 text-blue-800">{quiz.time_limit_minutes ?? 0} menit</span>
+                                        <span className="px-2 py-1 rounded-full font-medium bg-indigo-100 text-indigo-800">{quiz.questions_count ?? 0} soal</span>
+                                    </div>
+                                </div>
+
+                                {/* Konten Kanan (Tombol Aksi) */}
+                                <div className="flex-shrink-0 w-full sm:w-auto flex items-center justify-center sm:justify-end gap-4">
+                                    {userRole === "student" && (
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            onClick={() => router.visit(route("classes.quizzes.show", { class: classData.id, quiz: quiz.id }))}
+                                        >
+                                            Lihat Detail
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="p-3 rounded border bg-gray-50 italic text-sm text-gray-500">
+                            Belum ada kuis di kelas ini.
+                        </div>
+                    )}
+                </div>
+            </div>
+
 
             {(userRole === "admin" || userRole === "mentor") && !isAdding && !editingMeeting && (
                 <div className="w-full mt-6">
