@@ -57,6 +57,7 @@ class ClassModel extends Model
         return $this->hasMany(Meeting::class, 'class_id');
     }
 
+
     public function quizzes()
     {
         return $this->hasMany(Quiz::class, 'class_id');
@@ -64,6 +65,6 @@ class ClassModel extends Model
 
     public function discussions()
     {
-        return $this->hasMany(Discussion::class, 'class_id');
+        return $this->hasMany(Discussion::class, 'class_id')->with('openerStudent:id,name,avatar')->orderByDesc('created_at');
     }
 }

@@ -5,19 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
-/**
- * @property string $id
- * @property string $title
- * @property string $description
- * @property \Carbon\Carbon $open_datetime
- * @property \Carbon\Carbon $close_datetime
- * @property int $time_limit_minutes
- * @property string $status
- * @property string $class_id
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- */
 class Quiz extends Model
 {
     use HasFactory, HasUuids;
@@ -26,22 +16,33 @@ class Quiz extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = [
-        'title',
-        'description',
-        'open_datetime',
-        'close_datetime',
-        'time_limit_minutes',
-        'status',
-        'class_id',
-    ];
+    protected $fillable = ['title', 'description', 'open_datetime', 'close_datetime', 'time_limit_minutes', 'status', 'attempts_allowed', 'class_id'];
 
     protected $casts = [
         'open_datetime' => 'datetime',
         'close_datetime' => 'datetime',
         'time_limit_minutes' => 'integer',
         'status' => 'string',
+        'attempts_allowed' => 'integer',
     ];
+
+    protected $attributes = [
+        'status' => 'close', // default sesuai migration
+        'attempts_allowed' => 1,
+    ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->{$model->getKeyName()})) {
+                $model->{$model->getKeyName()} = (string) Str::uuid();
+            }
+        });
+    }
+
+    /** RELATIONSHIPS */
 
     public function class()
     {
@@ -54,6 +55,11 @@ class Quiz extends Model
     }
 
     public function quizAttempts()
+    {
+        return $this->hasMany(QuizAttempt::class, 'quiz_id');
+    }
+
+    public function attempts()
     {
         return $this->hasMany(QuizAttempt::class, 'quiz_id');
     }

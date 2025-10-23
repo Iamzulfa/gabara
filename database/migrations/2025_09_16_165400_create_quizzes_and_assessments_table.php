@@ -18,6 +18,8 @@ return new class extends Migration
             $table->datetime('open_datetime');
             $table->datetime('close_datetime');
             $table->integer('time_limit_minutes');
+            
+            $table->integer('attempts_allowed')->default(1);
             $table->string('status')->default('close')->comment('open/close');
             $table->uuid('class_id');
             $table->foreign('class_id')->references('id')->on('classes')->onDelete('cascade');
@@ -28,7 +30,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('quiz_id');
             $table->string('question_text');
-            $table->string('type')->comment('multiple_choice, essay');
+            $table->string('type')->comment('pilihan_ganda, esai');
             $table->json('options')->nullable()->comment('JSON array for MC');
             $table->foreign('quiz_id')->references('id')->on('quizzes')->onDelete('cascade');
             $table->timestamps();
@@ -39,6 +41,7 @@ return new class extends Migration
             $table->uuid('quiz_id');
             $table->uuid('student_id');
             $table->float('score')->nullable();
+            $table->string('status')->default('in_progress');
             $table->datetime('started_at')->nullable();
             $table->datetime('finished_at')->nullable();
             $table->foreign('quiz_id')->references('id')->on('quizzes')->onDelete('cascade');

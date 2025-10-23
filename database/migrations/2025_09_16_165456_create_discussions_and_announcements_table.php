@@ -29,6 +29,8 @@ return new class extends Migration
             $table->uuid('user_id');
             $table->string('reply_text');
             $table->datetime('posted_at');
+            $table->uuid('parent_id')->nullable();
+            $table->foreign('parent_id')->references('id')->on('discussion_replies')->onDelete('cascade');
             $table->foreign('discussion_id')->references('id')->on('discussions')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

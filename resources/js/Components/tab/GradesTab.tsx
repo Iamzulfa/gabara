@@ -17,15 +17,30 @@ const GradesTab: React.FC = () => {
         );
     }
 
+    interface QuizWithAttempt {
+        id: string;
+        title: string;
+        attempts?: {
+            student_id: string;
+            score?: number;
+            status?: 'in_progress' | 'finished';
+        }[];
+    }
+
+
     const allAssignments = classData.meetings.flatMap(meeting => meeting.assignments);
     const allSubmissions = classData.meetings.flatMap(meeting =>
         meeting.assignments.flatMap(assignment => assignment.submissions)
     );
+
     const enrolledStudents = classData.enrollments.map(enrollment => enrollment.student);
 
-    const grades: Grade[] = isStudent
+    // ==================== ASSIGNMENT GRADES ====================
+    const assignmentGrades: Grade[] = isStudent
         ? allAssignments.map((assignment) => {
-            const submission = allSubmissions.find(s => s.assignment_id === assignment.id && s.student_id === auth.user.id);
+            const submission = allSubmissions.find(
+                s => s.assignment_id === assignment.id && s.student_id === auth.user.id
+            );
             const deadline = new Date(`${assignment.date_close}T${assignment.time_close}Z`);
             const now = new Date();
             const isPastDeadline = now > deadline;
@@ -69,30 +84,68 @@ const GradesTab: React.FC = () => {
             });
         });
 
+    // ==================== QUIZ GRADES ====================
+    const allQuizzes = classData.quizzes || [];
+    const quizGrades: Grade[] = isStudent
+        ? (allQuizzes as QuizWithAttempt[]).map((quiz) => {
+            const attempt = quiz.attempts?.[0];
+            return {
+                item: quiz.title || `Kuis ${quiz.id}`,
+                score: attempt?.score,
+                feedback: '-',
+                status: attempt
+                    ? attempt.status === 'finished'
+                        ? 'Selesai'
+                        : 'In Progress'
+                    : 'Belum Mengerjakan',
+            };
+        })
+        : (allQuizzes as QuizWithAttempt[]).flatMap((quiz) =>
+            enrolledStudents.map((student) => {
+                const attempt = quiz.attempts?.find(a => a.student_id === student.id);
+                return {
+                    item: quiz.title || `Kuis ${quiz.id}`,
+                    student_name: student.name || 'Unknown',
+                    score: attempt?.score,
+                    feedback: '-',
+                    status: attempt
+                        ? attempt.status === 'finished'
+                            ? 'Selesai'
+                            : 'In Progress'
+                        : 'Belum Mengerjakan',
+                };
+            })
+        );
+
+
+    const grades = [...assignmentGrades, ...quizGrades];
+
+    // ==================== CHART DATA ====================
     const chartData: ChartData = {
         series: [
             {
                 name: 'Rata-rata Nilai',
                 data: [
                     grades
-                        .filter((g) => g.item.includes('Tugas') && g.score !== undefined)
+                        .filter(g => g.item.startsWith('Tugas') && g.score !== undefined)
                         .reduce((sum, g) => sum + (g.score || 0), 0) /
-                        (grades.filter((g) => g.item.includes('Tugas') && g.score !== undefined).length || 1) || 0,
+                    (grades.filter(g => g.item.startsWith('Tugas') && g.score !== undefined).length || 1) || 0,
                     grades
-                        .filter((g) => g.item.includes('Kuis') && g.score !== undefined)
+                        .filter(g => g.item.startsWith('Kuis') && g.score !== undefined)
                         .reduce((sum, g) => sum + (g.score || 0), 0) /
-                        (grades.filter((g) => g.item.includes('Kuis') && g.score !== undefined).length || 1) || 0,
+                    (grades.filter(g => g.item.startsWith('Kuis') && g.score !== undefined).length || 1) || 0,
                 ],
             },
         ],
         categories: ['Tugas', 'Kuis'],
     };
 
+    // ==================== RENDER ====================
     return (
         <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6">
             <h2 className="text-lg md:text-xl font-semibold text-gray-800">Nilai</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                {/* Left section: Grade list */}
+                {/* Left: Table */}
                 <div className="col-span-2 p-4 border rounded-lg">
                     <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
                         {isStudent ? (
@@ -158,15 +211,14 @@ const GradesTab: React.FC = () => {
                         )}
                     </div>
                 </div>
-                {/* Right section: Chart */}
+
+                {/* Right: Chart */}
                 <div className="col-span-2 md:col-span-1 w-full border p-4 rounded-lg">
                     <h3 className="text-lg text-center font-bold text-gray-700 mb-2">Ringkasan Nilai</h3>
                     <ReactApexChart
                         options={{
                             chart: { type: 'bar' },
-                            xaxis: {
-                                categories: chartData.categories,
-                            },
+                            xaxis: { categories: chartData.categories },
                             colors: ['#F97316', '#D946EF'],
                             legend: { position: 'bottom' },
                             responsive: [{ breakpoint: 480, options: { chart: { width: '100%' } } }],

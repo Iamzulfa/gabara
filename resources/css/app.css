@@ -862,6 +862,14 @@ span.flatpickr-weekday,
 	@apply bg-gray-700!;
 }
 
+.mention {
+  background-color: rgba(14, 165, 233, 0.12); /* light blue */
+  color: #0366d6;
+  padding: 0 6px;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
 .simplebar-scrollbar.simplebar-visible:before {
 	@apply opacity-100;
 }
