@@ -69,10 +69,10 @@ class MeetingController extends Controller
         });
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $classId, $meetingId)
     {
-        $meeting = Meeting::findOrFail($id);
-        $validator = ValidationHelper::meeting($request->all(), true, $id);
+        $meeting = Meeting::findOrFail($meetingId);
+        $validator = ValidationHelper::meeting($request->all(), true, $meetingId);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
@@ -158,9 +158,9 @@ class MeetingController extends Controller
         });
     }
 
-    public function destroy($id)
+    public function destroy($classId, $meetingId)
     {
-        $meeting = Meeting::findOrFail($id);
+        $meeting = Meeting::findOrFail($meetingId);
         $meeting->delete();
 
         return redirect()->back()->with('success', 'Pertemuan berhasil dihapus.');

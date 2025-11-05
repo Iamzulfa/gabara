@@ -10,10 +10,10 @@ use Inertia\Inertia;
 
 class AssignmentController extends Controller
 {
-    public function show($id)
+    public function show($classId, $assignmentId)
     {
         $assignment = Assignment::with(['meeting.class', 'submissions.student'])
-            ->findOrFail($id);
+            ->findOrFail($assignmentId);
 
         $user = auth()->user();
 
