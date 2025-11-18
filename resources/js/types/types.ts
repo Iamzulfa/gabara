@@ -266,6 +266,7 @@ export interface Deadline {
     id: string;
     title: string;
     deadline: string;
+    type: 'assignment' | 'quiz';
 }
 
 export interface Announcement {

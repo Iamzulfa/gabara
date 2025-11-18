@@ -7,8 +7,6 @@ import { createRoot } from 'react-dom/client';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Gabara';
 
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 createInertiaApp({
     title: (title) => `${title}`,
@@ -23,16 +21,6 @@ createInertiaApp({
         root.render(
             <>
                 <App {...props} />
-                <ToastContainer
-                    position="top-right"
-                    autoClose={3000}
-                    hideProgressBar={false}
-                    newestOnTop
-                    closeOnClick
-                    pauseOnHover
-                    draggable
-                    theme="colored"
-                />
             </>
         );
     },

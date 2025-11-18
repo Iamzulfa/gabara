@@ -136,7 +136,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
             });
             resetMeeting();
             setServerErrors({});
-        } 
+        }
     }, [userRole, resetMeeting]);
 
     const handleEditMeeting = useCallback((meeting: Meeting) => {
@@ -144,7 +144,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
             setIsAdding(false);
             setEditingMeeting(meeting);
             setServerErrors({});
-        } 
+        }
     }, [userRole]);
 
     const handleSubmitMeeting = useCallback(
@@ -307,7 +307,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
                     },
                 });
             }
-        } 
+        }
     }, [userRole]);
 
     const handleAddAssignmentInForm = useCallback(() => {
@@ -350,7 +350,7 @@ export default function CourseTab({ classData }: CourseTabProps) {
                 confirmButtonText: "Ya, Hapus",
                 cancelButtonText: "Batal",
             })) {
-                router.delete(route("assignments.destroy", assignmentId), {
+                router.delete(route("assignments.destroy", { class: classData.id, assignment: assignmentId }), {
                     onSuccess: () => {
                         router.reload({ only: ['meetings'] });
                     },
