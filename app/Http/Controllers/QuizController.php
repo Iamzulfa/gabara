@@ -402,7 +402,9 @@ class QuizController extends Controller
     }
 
     // 🧮 Hitung jumlah attempt yang sudah selesai
-    $finishedAttemptCount = $allAttempts->where('status', 'finished')->count();
+    $finishedAttemptCount = $allAttempts
+        ->whereIn('status', ['finished', 'completed'])
+        ->count();
 
     // ⚙️ Tentukan apakah siswa boleh memulai attempt baru
     $canAttempt = true;
@@ -415,7 +417,7 @@ class QuizController extends Controller
         $message = 'Kuis belum dibuka.';
     } elseif ($quiz->close_datetime && $now->isAfter($quiz->close_datetime)) {
         $canAttempt = false;
-        $message = 'Waktu pengerjaan kuis sudah berakhir.';
+        $message = 'Quiz sudah ditutup';
     } else {
         // 🔁 Jika ada attempt in_progress, tetap boleh lanjut
         if ($latestAttempt && $latestAttempt->status === 'in_progress') {
@@ -424,7 +426,7 @@ class QuizController extends Controller
         // 🚧 Kalau tidak ada yang in_progress dan sudah capai limit → dilarang
         elseif ($quiz->attempts_allowed > 0 && $finishedAttemptCount >= $quiz->attempts_allowed) {
             $canAttempt = false;
-            $message = 'Anda sudah mencapai batas attempt yang diperbolehkan.';
+            $message = 'Anda telah mencapai batas maksimum pengerjaan quiz';
         } else {
             $canAttempt = true; // masih boleh mulai attempt baru
         }

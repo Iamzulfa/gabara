@@ -16,7 +16,7 @@ class QuizAttemptController extends Controller
     /**
      * Mulai atau lanjutkan attempt.
      */
-    public function start(Request $request, ?ClassModel $class = null, Quiz $quiz)
+    public function start(Request $request, ClassModel $class, Quiz $quiz)
     {
         $user = Auth::user();
 
@@ -46,13 +46,13 @@ class QuizAttemptController extends Controller
             return back()->withErrors(['quiz' => 'Kuis belum dibuka.']);
         }
         if ($quiz->close_datetime && $now->isAfter($quiz->close_datetime)) {
-            return back()->withErrors(['quiz' => 'Waktu pengerjaan kuis sudah berakhir.']);
+            return back()->withErrors(['quiz' => 'Quiz sudah ditutup']);
         }
 
         // Validasi attempt count
         $count = $quiz->quizAttempts()->where('student_id', $user->id)->count();
         if ($quiz->attempts_allowed > 0 && $count >= $quiz->attempts_allowed) {
-            return back()->withErrors(['quiz' => 'Anda sudah mencapai batas pengerjaan kuis.']);
+            return back()->withErrors(['quiz' => 'Anda telah mencapai batas maksimum pengerjaan quiz']);
         }
 
         $attempt = QuizAttempt::create([
@@ -147,12 +147,13 @@ class QuizAttemptController extends Controller
                 }
             }
 
-            $totalForScore = $countableQuestions > 0 ? $countableQuestions : 1;
-            $score = round(($correctCount / $totalForScore) * 100, 2);
+            $score = $countableQuestions > 0
+                ? round(($correctCount / $countableQuestions) * 100, 2)
+                : null;
 
             $attempt->update([
                 'finished_at' => now(),
-                'status' => 'finished',
+                'status' => 'completed',
                 'score' => $score,
             ]);
         });

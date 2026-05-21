@@ -47,16 +47,16 @@ export default function SubmitConfirmModal({
         </p>
 
         <p className="text-sm text-gray-700 mb-6">
-          Setelah kamu menekan <b>Kirim Jawaban</b>, jawaban tidak bisa diubah.
+          Setelah kamu menekan <b>Submit Quiz</b>, jawaban tidak bisa diubah.
           Pastikan semuanya sudah benar sebelum mengirim.
         </p>
 
         <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onClose}>
             Kembali
           </Button>
-          <Button variant="default" onClick={onConfirm}>
-            Kirim Jawaban
+          <Button type="button" variant="default" onClick={onConfirm}>
+            Submit Quiz
           </Button>
         </div>
       </div>

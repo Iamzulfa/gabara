@@ -13,6 +13,7 @@ interface ButtonProps {
 }
 
 const Button: React.FC<ButtonProps> = ({
+    type,
     children,
     size = "md",
     variant = "default",
@@ -47,6 +48,7 @@ const Button: React.FC<ButtonProps> = ({
 
     return (
         <button
+            type={type}
             className={`inline-flex items-center justify-center gap-2 rounded-sm transition ${className} ${sizeClasses[size]
                 } ${variantClasses[variant]} ${disabled ? "cursor-not-allowed opacity-50" : ""
                 }`}

@@ -23,7 +23,7 @@ export default function QuizInfoCard() {
 
   const hasAttempt = Boolean(attempt?.id);
   const isOngoing = attempt?.status === "in_progress";
-  const isFinished = attempt?.status === "finished";
+  const isFinished = attempt?.status === "finished" || attempt?.status === "completed";
   const totalQuestions = quiz?.questions_count ?? quiz?.questions?.length ?? 0;
 
   const getPreview = (it: any) => {
@@ -134,7 +134,7 @@ export default function QuizInfoCard() {
             <div className="flex flex-col w-full sm:w-auto items-stretch sm:items-end gap-2">
               {isOngoing && (
                 <Button onClick={handleContinue} disabled={isPosting} className="w-full sm:w-auto">
-                  Lanjutkan Attempt
+                  Lanjutkan Quiz
                 </Button>
               )}
               {!isOngoing && can_attempt && (
@@ -195,9 +195,9 @@ export default function QuizInfoCard() {
                   <div className="mt-1 text-sm">
                     Status:{" "}
                     <span
-                      className={it.status === "finished" ? "text-green-600" : "text-yellow-600"}
+                      className={["finished", "completed"].includes(it.status) ? "text-green-600" : "text-yellow-600"}
                     >
-                      {it.status === "finished" ? "Selesai" : "In Progress"}
+                      {["finished", "completed"].includes(it.status) ? "Selesai" : "In Progress"}
                     </span>
                   </div>
                   <div className="text-sm">
@@ -207,7 +207,7 @@ export default function QuizInfoCard() {
                     <div className="text-sm mb-2">Skor: {prev.score}</div>
                   )}
                   {/* ✅ Tombol buka modal */}
-                  {it.status === "finished" && (
+                  {["finished", "completed"].includes(it.status) && (
                     <div className="flex justify-center sm:justify-end">
                       <Button
                         variant="link"

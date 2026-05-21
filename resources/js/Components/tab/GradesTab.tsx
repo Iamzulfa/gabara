@@ -7,6 +7,7 @@ const GradesTab: React.FC = () => {
     const { props } = usePage<PageProps>();
     const { auth, class: classData, userRole } = props;
     const isStudent = userRole === 'student';
+    const isCompletedAttempt = (status?: string) => ['finished', 'completed'].includes(status ?? '');
 
     if (!classData) {
         return (
@@ -81,7 +82,7 @@ const GradesTab: React.FC = () => {
     const quizGrades: Grade[] = isStudent
         ? allQuizzes.flatMap((quiz) => {
             const studentAttempts = (quiz.attempts || []).filter(attempt =>
-                attempt.student_id === auth.user.id && attempt.status === 'finished'
+                attempt.student_id === auth.user.id && isCompletedAttempt(attempt.status)
             );
             return studentAttempts.map((attempt, index) => ({
                 item: `${quiz.title || `Kuis ${quiz.id}`} (Attempt ${index + 1})`,
@@ -93,7 +94,7 @@ const GradesTab: React.FC = () => {
         : allQuizzes.flatMap((quiz) => {
             return enrolledStudents.flatMap((student) => {
                 const studentAttempts = (quiz.attempts || []).filter(attempt =>
-                    attempt.student_id === student.id && attempt.status === 'finished'
+                    attempt.student_id === student.id && isCompletedAttempt(attempt.status)
                 );
                 return studentAttempts.map((attempt, index) => ({
                     item: `${quiz.title || `Kuis ${quiz.id}`} (${index + 1})`,
@@ -124,7 +125,12 @@ const GradesTab: React.FC = () => {
 
         const studentQuizScores = allQuizzes.flatMap(quiz =>
             (quiz.attempts || [])
-                .filter(attempt => attempt.student_id === auth.user.id && attempt.status === 'finished' && attempt.score !== undefined && attempt.score !== null)
+                .filter(attempt =>
+                    attempt.student_id === auth.user.id &&
+                    isCompletedAttempt(attempt.status) &&
+                    attempt.score !== undefined &&
+                    attempt.score !== null
+                )
                 .map(attempt => attempt.score!)
         );
         quizAverage = studentQuizScores.length > 0
@@ -142,7 +148,12 @@ const GradesTab: React.FC = () => {
         const studentIds = enrolledStudents.map(student => student.id);
         const quizScores = allQuizzes.flatMap(quiz =>
             (quiz.attempts || [])
-                .filter(attempt => attempt.status === 'finished' && attempt.score !== undefined && attempt.score !== null && studentIds.includes(attempt.student_id))
+                .filter(attempt =>
+                    isCompletedAttempt(attempt.status) &&
+                    attempt.score !== undefined &&
+                    attempt.score !== null &&
+                    studentIds.includes(attempt.student_id)
+                )
                 .map(attempt => attempt.score!)
         );
         quizAverage = quizScores.length > 0

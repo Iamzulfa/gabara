@@ -115,6 +115,12 @@ export const ModalClass = ({ isOpen, onClose, classData }: ModalClassProps) => {
         setLoading(true);
 
         if (role === "student") {
+            if (!data.enrollment_code.trim()) {
+                setServerErrors({ enrollment_code: "Kode kelas wajib diisi" });
+                setLoading(false);
+                return;
+            }
+
             router.post(
                 route("enrollments.store"),
                 { enrollment_code: data.enrollment_code },
@@ -187,7 +193,7 @@ export const ModalClass = ({ isOpen, onClose, classData }: ModalClassProps) => {
             <div className="no-scrollbar relative w-full max-w-[700px] max-h-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
                 <h4 className="text-2xl font-semibold mb-4">
                     {role === "student"
-                        ? "Bergabung ke Kelas"
+                        ? "Daftar Kelas"
                         : classData
                           ? "Edit Kelas"
                           : "Tambah Kelas"}
@@ -244,7 +250,7 @@ export const ModalClass = ({ isOpen, onClose, classData }: ModalClassProps) => {
                                     Memproses...
                                 </>
                             ) : role === "student" ? (
-                                "Bergabung"
+                                "Daftar"
                             ) : (
                                 "Simpan"
                             )}

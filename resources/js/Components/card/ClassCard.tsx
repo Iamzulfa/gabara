@@ -63,7 +63,7 @@ export default function ClassCard() {
             {/* Header */}
             <HeaderSection
                 title="Kelas"
-                buttonLabel={role === "student" ? "Enroll" : "Tambah"}
+                buttonLabel={role === "student" ? "Daftar" : "Tambah"}
                 onButtonClick={handleCreate}
             />
 

@@ -11,6 +11,7 @@ export default function QuizHistory() {
   const quiz = props.quiz ?? null;
   const attemptsRaw = props.attempts ?? [];
   const attempts = Array.isArray(attemptsRaw) ? attemptsRaw : attemptsRaw?.data ?? [];
+  const isCompleted = (status?: string) => ["finished", "completed"].includes(status ?? "");
 
   // --- Helpers ---
   const fmt = (d?: string) => (d ? new Date(d).toLocaleString() : "-");
@@ -92,7 +93,7 @@ export default function QuizHistory() {
                       <div className="text-lg font-bold text-gray-800">{a.score ?? "-"}</div>
                     </div>
                     <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${a.status === "finished"
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${isCompleted(a.status)
                           ? "bg-green-100 text-green-800"
                           : "bg-yellow-100 text-yellow-800"
                         }`}

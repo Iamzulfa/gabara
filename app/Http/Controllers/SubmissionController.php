@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Assignment;
 use App\Models\Submission;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Facades\DB;
@@ -14,15 +15,24 @@ class SubmissionController extends Controller
     {
         $request->validate(
             [
-                'file' => 'file|mimes:pdf,docx|max:2048',
+                'file' => 'required|file|mimes:pdf,docx|min:1|max:2048',
             ],
             [
-                'file.mimes' => 'Format file harus PDF atau DOCX.',
-                'file.max' => 'Ukuran file maksimal 2MB.',
+                'file.required' => 'File tidak boleh kosong',
+                'file.min' => 'File tidak boleh kosong',
+                'file.mimes' => 'Tipe file tidak didukung. Hanya PDF dan DOCX yang diizinkan',
+                'file.max' => 'Ukuran file maksimal 2 MB',
             ]
         );
 
         $assignment = Assignment::findOrFail($assignmentId);
+
+        if ($this->isPastDeadline($assignment)) {
+            return redirect()->back()->withErrors([
+                'file' => 'Batas waktu pengumpulan telah lewat',
+            ]);
+        }
+
         $student = auth()->user();
 
         $existingSubmission = Submission::where('assignment_id', $assignmentId)
@@ -55,7 +65,7 @@ class SubmissionController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Tugas berhasil dikirim!');
+            return redirect()->back()->with('success', 'Tugas berhasil dikumpulkan');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Gagal mengirim tugas: ' . $e->getMessage());
@@ -70,47 +80,50 @@ class SubmissionController extends Controller
 
         $request->validate(
             [
-                'file' => 'file|mimes:pdf,docx|max:2048',
+                'file' => 'required|file|mimes:pdf,docx|min:1|max:2048',
             ],
             [
-                'file.mimes' => 'Format file harus PDF atau DOCX.',
-                'file.max' => 'Ukuran file maksimal 2MB.',
+                'file.required' => 'File tidak boleh kosong',
+                'file.min' => 'File tidak boleh kosong',
+                'file.mimes' => 'Tipe file tidak didukung. Hanya PDF dan DOCX yang diizinkan',
+                'file.max' => 'Ukuran file maksimal 2 MB',
             ]
         );
+
+        $assignment = Assignment::findOrFail($assignmentId);
+
+        if ($this->isPastDeadline($assignment)) {
+            return redirect()->back()->withErrors([
+                'file' => 'Batas waktu pengumpulan telah lewat',
+            ]);
+        }
 
         try {
             DB::beginTransaction();
 
-            if ($request->hasFile('file')) {
-                if (!empty($submission->public_id)) {
-                    Cloudinary::uploadApi()->destroy($submission->public_id);
-                }
-
-                $file = $request->file('file');
-
-                $uploadedFile = Cloudinary::uploadApi()->upload(
-                    $file->getRealPath(),
-                    ['folder' => 'submissions']
-                );
-
-                $publicId = $uploadedFile['public_id'];
-                $fileLink = $uploadedFile['secure_url'];
-
-                $submission->update([
-                    'submission_content' => $fileLink,
-                    'public_id' => $publicId,
-                    'submitted_at' => now(),
-                ]);
-            } else {
-                // If no file is uploaded, just update the submitted_at timestamp
-                $submission->update([
-                    'submitted_at' => now(),
-                ]);
+            if (!empty($submission->public_id)) {
+                Cloudinary::uploadApi()->destroy($submission->public_id);
             }
+
+            $file = $request->file('file');
+
+            $uploadedFile = Cloudinary::uploadApi()->upload(
+                $file->getRealPath(),
+                ['folder' => 'submissions']
+            );
+
+            $publicId = $uploadedFile['public_id'];
+            $fileLink = $uploadedFile['secure_url'];
+
+            $submission->update([
+                'submission_content' => $fileLink,
+                'public_id' => $publicId,
+                'submitted_at' => now(),
+            ]);
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Tugas berhasil diperbarui!');
+            return redirect()->back()->with('success', 'Submission berhasil diperbarui');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Gagal memperbarui tugas: ' . $e->getMessage());
@@ -161,5 +174,16 @@ class SubmissionController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Nilai berhasil disimpan!');
+    }
+
+    private function isPastDeadline(Assignment $assignment): bool
+    {
+        if (!$assignment->date_close || !$assignment->time_close) {
+            return false;
+        }
+
+        $deadline = Carbon::parse($assignment->date_close . ' ' . $assignment->time_close);
+
+        return now()->greaterThan($deadline);
     }
 }

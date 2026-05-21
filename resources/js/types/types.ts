@@ -229,7 +229,7 @@ export interface QuizInfoPageProps extends InertiaPageProps {
     incorrect_answers?: number;
     questions_attempted?: number;
     finished_at?: string;
-    status: "in_progress" | "finished" | "not_started";
+    status: "in_progress" | "finished" | "completed" | "not_started";
   };
 
     attempts?: QuizAttemptType[];
@@ -246,7 +246,7 @@ export interface QuizAttemptType {
   started_at: string;
   finished_at?: string;
   score?: number;
-  status: "in_progress" | "finished" | "not_started";
+  status: "in_progress" | "finished" | "completed" | "not_started";
   answers?: any[];
 }
 

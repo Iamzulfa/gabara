@@ -245,7 +245,7 @@ export default function QuizAttemptCard() {
                 onClick={handleOpenConfirmModal}
                 disabled={isSubmitting || isFinished}
               >
-                {isSubmitting ? "Mengirim..." : "Selesai & Kirim"}
+                {isSubmitting ? "Mengirim..." : "Submit Quiz"}
               </Button>
             ) : (
               <Button

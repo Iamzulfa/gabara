@@ -53,11 +53,12 @@ interface PageProps extends InertiaPageProps {
     };
     assignment: Assignment;
     submissions?: Submission[];
+    errors?: Record<string, string>;
 }
 
 export default function AssignmentDetailCard() {
     const { props } = usePage<PageProps>();
-    const { auth, assignment, submissions } = props;
+    const { auth, assignment, submissions, errors = {} } = props;
     const userRole = auth.user.role || "student";
     const isStudent = userRole === "student";
     const isMentorOrAdmin = userRole === "admin" || userRole === "mentor";
@@ -89,11 +90,6 @@ export default function AssignmentDetailCard() {
         setLoading(true);
 
         const formData = new FormData(e.currentTarget as HTMLFormElement);
-        const file = formData.get("file") as File;
-        const allowedTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
-        if (file && !allowedTypes.includes(file.type)) {
-            return;
-        }
 
         if (studentSubmission && studentSubmission.id) {
             formData.append('_method', 'PATCH');
@@ -103,11 +99,10 @@ export default function AssignmentDetailCard() {
                 {
                     forceFormData: true,
                     onSuccess: () => {
-                        // Keep modal open until finish
+                        closeModal();
                     },
                     onFinish: () => {
                         setLoading(false);
-                        closeModal();
                     },
                 }
             );
@@ -118,11 +113,10 @@ export default function AssignmentDetailCard() {
                 {
                     forceFormData: true,
                     onSuccess: () => {
-                        // Keep modal open until finish
+                        closeModal();
                     },
                     onFinish: () => {
                         setLoading(false);
-                        closeModal();
                     },
                 }
             );
@@ -272,19 +266,21 @@ export default function AssignmentDetailCard() {
                     <div className="mt-6">
                         <Modal isOpen={isModalOpen} onClose={closeModal} className="max-w-xs xsm:max-w-sm md:max-w-md mt-4">
                             <div className="p-6 bg-white rounded-lg">
-                                <h4 className="text-lg font-semibold mb-4">{studentSubmission?.submitted_at ? "Edit Pengajuan" : "Kirim Pengajuan"}</h4>
+                                <h4 className="text-lg font-semibold mb-4">{studentSubmission?.submitted_at ? "Update Submission" : "Upload Submission"}</h4>
                                 <form onSubmit={handleFileSubmit} className="space-y-4">
                                     <div>
                                         <Label>Pengajuan Berkas</Label>
                                         <input
                                             type="file"
                                             name="file"
-                                            accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                             className="file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/80"
                                         />
+                                        {errors.file && (
+                                            <p className="text-xs text-red-500 mt-2">{errors.file}</p>
+                                        )}
                                     </div>
                                     <div className="flex justify-end gap-2">
-                                        <Button variant="outline" onClick={closeModal}>
+                                        <Button type="button" variant="outline" onClick={closeModal}>
                                             Batal
                                         </Button>
                                         <Button variant="default" type="submit" disabled={loading}>
@@ -293,7 +289,7 @@ export default function AssignmentDetailCard() {
                                                     <AiOutlineLoading3Quarters className="animate-spin mr-2" />
                                                     {studentSubmission?.submitted_at ? "Memperbarui..." : "Memproses..."}
                                                 </>
-                                            ) : studentSubmission?.submitted_at ? "Simpan Perubahan" : "Kirim"}
+                                            ) : studentSubmission?.submitted_at ? "Update Submission" : "Upload Submission"}
                                         </Button>
                                     </div>
                                 </form>
@@ -330,14 +326,14 @@ export default function AssignmentDetailCard() {
                             </table>
                         </div>
                         <div className="mt-4 flex flex-col md:flex-row gap-2">
-                            {studentSubmission?.submitted_at && !isPastDeadline && studentSubmission.grade === null && (
+                            {studentSubmission?.submitted_at && studentSubmission.grade === null && (
                                 <>
                                     <Button
                                         variant="default"
                                         size="md"
                                         onClick={() => setIsModalOpen(true)}
                                     >
-                                        Edit Pengajuan
+                                        Update Submission
                                     </Button>
                                     <Button
                                         variant="danger"
@@ -428,6 +424,9 @@ export default function AssignmentDetailCard() {
                                             onChange={(e) => setGrade(e)}
                                             placeholder="Masukkan nilai (0-100)"
                                         />
+                                        {errors.grade && (
+                                            <p className="text-xs text-red-500 mt-2">{errors.grade}</p>
+                                        )}
                                     </div>
                                     <div>
                                         <Label>Umpan Balik</Label>
@@ -438,7 +437,7 @@ export default function AssignmentDetailCard() {
                                         />
                                     </div>
                                     <div className="flex justify-end gap-2">
-                                        <Button variant="outline" onClick={closeModal}>
+                                        <Button type="button" variant="outline" onClick={closeModal}>
                                             Batal
                                         </Button>
                                         <Button variant="default" type="submit" disabled={loading}>
