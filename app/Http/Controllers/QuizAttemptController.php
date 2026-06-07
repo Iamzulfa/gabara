@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Quiz;
-use App\Models\ClassModel;
-use App\Models\QuizAttempt;
 use App\Models\Answer;
+use App\Models\ClassModel;
+use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class QuizAttemptController extends Controller
@@ -21,13 +21,17 @@ class QuizAttemptController extends Controller
         $user = Auth::user();
 
         // Cek enroll
-        if ($class && !$class->enrollments()->where('student_id', $user->id)->exists()) {
+        if ($class && ! $class->enrollments()->where('student_id', $user->id)->exists()) {
             return back()->withErrors(['authorization' => 'Anda tidak terdaftar di kelas ini.']);
         }
 
         // Pastikan quiz sesuai kelas
         if ($class && $quiz->class_id !== $class->id) {
             return back()->withErrors(['quiz' => 'Kuis tidak ditemukan di kelas ini.']);
+        }
+
+        if ($quiz->status !== 'Diterbitkan') {
+            return back()->withErrors(['quiz' => 'Kuis ini belum tersedia.']);
         }
 
         // Cari attempt aktif
@@ -43,7 +47,7 @@ class QuizAttemptController extends Controller
         // Validasi waktu
         $now = now();
         if ($quiz->open_datetime && $now->isBefore($quiz->open_datetime)) {
-            return back()->withErrors(['quiz' => 'Kuis belum dibuka.']);
+            return back()->withErrors(['quiz' => 'Tidak bisa memulai']);
         }
         if ($quiz->close_datetime && $now->isAfter($quiz->close_datetime)) {
             return back()->withErrors(['quiz' => 'Quiz sudah ditutup']);
@@ -71,14 +75,17 @@ class QuizAttemptController extends Controller
     public function show(QuizAttempt $attempt)
     {
         $user = auth()->user();
-        if ($attempt->student_id !== $user->id) abort(403, 'Akses tidak diizinkan.');
+        if ($attempt->student_id !== $user->id) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
 
         $attempt->load([
-        'quiz.questions', // include options dari setiap pertanyaan
-        'answers', // include jawaban siswa
-    ]);
+            'quiz.questions', // include options dari setiap pertanyaan
+            'answers', // include jawaban siswa
+        ]);
 
         $attempt->load(['quiz.questions', 'answers']);
+
         return Inertia::render('Quizzes/QuizAttempt', [
             'attempt' => $attempt,
             'quiz' => $attempt->quiz,
@@ -123,9 +130,11 @@ class QuizAttemptController extends Controller
             $attempt->answers()->delete();
 
             foreach ($questions as $question) {
-                $submitted = collect($validated['answers'])->firstWhere('question_id', (string)$question->id);
+                $submitted = collect($validated['answers'])->firstWhere('question_id', (string) $question->id);
                 $answerText = data_get($submitted, 'answer_text', '');
-                if ($answerText === null) $answerText = '';
+                if ($answerText === null) {
+                    $answerText = '';
+                }
 
                 Answer::create([
                     'attempt_id' => $attempt->id,
@@ -134,13 +143,13 @@ class QuizAttemptController extends Controller
                 ]);
 
                 // Hitung score hanya untuk non-esai
-                if ($question->type !== 'esai' && !empty($question->options)) {
+                if ($question->type !== 'esai' && ! empty($question->options)) {
                     $correctOption = collect($question->options)->firstWhere('is_correct', true);
                     if ($correctOption) {
                         $countableQuestions++;
                         $normalizedCorrect = strtolower(trim($correctOption['text']));
                         $normalizedAnswer = strtolower(trim($answerText));
-                        if (!empty($answerText) && $normalizedCorrect === $normalizedAnswer) {
+                        if (! empty($answerText) && $normalizedCorrect === $normalizedAnswer) {
                             $correctCount++;
                         }
                     }
@@ -175,11 +184,13 @@ class QuizAttemptController extends Controller
 
         $attempts = QuizAttempt::with(['quiz.questions', 'answers'])
             ->where('student_id', $user->id)
-            ->when($quizId, fn($q) => $q->where('quiz_id', $quizId))
+            ->when($quizId, fn ($q) => $q->where('quiz_id', $quizId))
             ->orderByDesc('created_at')
             ->paginate(10);
 
-        if (!$quiz && $attempts->count() > 0) $quiz = $attempts->first()->quiz;
+        if (! $quiz && $attempts->count() > 0) {
+            $quiz = $attempts->first()->quiz;
+        }
 
         return Inertia::render('Quizzes/QuizHistory', [
             'attempts' => $attempts,

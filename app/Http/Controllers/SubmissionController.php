@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Assignment;
 use App\Models\Submission;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SubmissionController extends Controller
@@ -68,7 +68,8 @@ class SubmissionController extends Controller
             return redirect()->back()->with('success', 'Tugas berhasil dikumpulkan');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal mengirim tugas: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'Gagal mengirim tugas: '.$e->getMessage());
         }
     }
 
@@ -101,7 +102,7 @@ class SubmissionController extends Controller
         try {
             DB::beginTransaction();
 
-            if (!empty($submission->public_id)) {
+            if (! empty($submission->public_id)) {
                 Cloudinary::uploadApi()->destroy($submission->public_id);
             }
 
@@ -126,7 +127,8 @@ class SubmissionController extends Controller
             return redirect()->back()->with('success', 'Submission berhasil diperbarui');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal memperbarui tugas: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'Gagal memperbarui tugas: '.$e->getMessage());
         }
     }
 
@@ -139,7 +141,7 @@ class SubmissionController extends Controller
         try {
             DB::beginTransaction();
 
-            if (!empty($submission->public_id)) {
+            if (! empty($submission->public_id)) {
                 Cloudinary::uploadApi()->destroy($submission->public_id);
             }
 
@@ -150,7 +152,8 @@ class SubmissionController extends Controller
             return redirect()->back()->with('success', 'Tugas berhasil dihapus!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal menghapus tugas: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'Gagal menghapus tugas: '.$e->getMessage());
         }
     }
 
@@ -170,7 +173,7 @@ class SubmissionController extends Controller
         $submission = Submission::findOrFail($submissionId);
         $submission->update([
             'grade' => $request->grade,
-            'feedback' => $request->feedback
+            'feedback' => $request->feedback,
         ]);
 
         return redirect()->back()->with('success', 'Nilai berhasil disimpan!');
@@ -178,11 +181,18 @@ class SubmissionController extends Controller
 
     private function isPastDeadline(Assignment $assignment): bool
     {
-        if (!$assignment->date_close || !$assignment->time_close) {
+        if (! $assignment->date_close || ! $assignment->time_close) {
             return false;
         }
 
-        $deadline = Carbon::parse($assignment->date_close . ' ' . $assignment->time_close);
+        $date = Carbon::parse($assignment->date_close)->toDateString();
+        $time = trim((string) $assignment->time_close);
+
+        if (str_contains($time, ' ')) {
+            $time = Carbon::parse($time)->format('H:i:s');
+        }
+
+        $deadline = Carbon::parse($date.' '.$time);
 
         return now()->greaterThan($deadline);
     }

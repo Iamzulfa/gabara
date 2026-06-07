@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Question;
 use App\Models\Quiz;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class QuestionFactory extends Factory
 {
@@ -16,11 +16,11 @@ class QuestionFactory extends Factory
             'quiz_id' => Quiz::factory(),
             'question_text' => $this->faker->sentence(),
             'type' => 'pilihan_ganda',
-            'options' => json_encode([
+            'options' => [
                 ['text' => 'Option 1', 'is_correct' => false],
                 ['text' => 'Option 2', 'is_correct' => true],
                 ['text' => 'Option 3', 'is_correct' => false],
-            ]),
+            ],
         ];
     }
 }

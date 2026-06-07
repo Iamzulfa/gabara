@@ -2,17 +2,16 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\ClassModel;
-use App\Models\Quiz;
-use App\Models\Question;
-use App\Models\QuizAttempt;
 use App\Models\Answer;
+use App\Models\ClassModel;
 use App\Models\Enrollment;
+use App\Models\Question;
+use App\Models\Quiz;
+use App\Models\QuizAttempt;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Tests\TestCase;
 
 class QuizUnitTest extends TestCase
 {
@@ -21,7 +20,7 @@ class QuizUnitTest extends TestCase
     /**
      * Test validasi mentor hanya bisa buat quiz di kelasnya.
      */
-    public function testMentorCanOnlyCreateQuizInOwnClass()
+    public function test_mentor_can_only_create_quiz_in_own_class()
     {
         // Mock mentor
         $mentor = User::factory()->create(['role' => 'mentor']);
@@ -92,7 +91,7 @@ class QuizUnitTest extends TestCase
     /**
      * Test validasi enroll student.
      */
-    public function testStudentEnrollmentValidation()
+    public function test_student_enrollment_validation()
     {
         // Mock student
         $student = User::factory()->create(['role' => 'student']);
@@ -104,14 +103,14 @@ class QuizUnitTest extends TestCase
         $class = ClassModel::factory()->create([
             'mentor_id' => $mentor->id,
             'visibility' => true,
-            'enrollment_code' => 'VALIDCODE'
+            'enrollment_code' => 'VALIDCODE',
         ]);
 
         // Mock kelas private
         $privateClass = ClassModel::factory()->create([
             'mentor_id' => $mentor->id,
             'visibility' => false,
-            'enrollment_code' => 'PRIVATECODE'
+            'enrollment_code' => 'PRIVATECODE',
         ]);
 
         Auth::shouldReceive('user')->andReturn($student);
@@ -148,7 +147,7 @@ class QuizUnitTest extends TestCase
     /**
      * Test validasi waktu quiz.
      */
-    public function testQuizTimeValidation()
+    public function test_quiz_time_validation()
     {
         // Mock student
         $student = User::factory()->create(['role' => 'student']);
@@ -180,10 +179,10 @@ class QuizUnitTest extends TestCase
         $message = null;
         if ($quiz->open_datetime && $now->isBefore($quiz->open_datetime)) {
             $canAttemptBeforeOpen = false;
-            $message = 'Kuis belum dibuka.';
+            $message = 'Tidak bisa memulai';
         }
         $this->assertFalse($canAttemptBeforeOpen);
-        $this->assertEquals('Kuis belum dibuka.', $message);
+        $this->assertEquals('Tidak bisa memulai', $message);
 
         // Test 2: Quiz sudah ditutup
         $quizClosed = Quiz::factory()->create([
@@ -196,10 +195,10 @@ class QuizUnitTest extends TestCase
         $canAttemptAfterClose = true;
         if ($quizClosed->close_datetime && $now->isAfter($quizClosed->close_datetime)) {
             $canAttemptAfterClose = false;
-            $message = 'Waktu pengerjaan kuis sudah berakhir.';
+            $message = 'Quiz sudah ditutup';
         }
         $this->assertFalse($canAttemptAfterClose);
-        $this->assertEquals('Waktu pengerjaan kuis sudah berakhir.', $message);
+        $this->assertEquals('Quiz sudah ditutup', $message);
 
         // Test 3: Dalam waktu, tapi sudah max attempt
         $quizMaxAttempt = Quiz::factory()->create([
@@ -220,16 +219,16 @@ class QuizUnitTest extends TestCase
         $canAttemptMax = true;
         if ($quizMaxAttempt->attempts_allowed > 0 && $finishedAttemptCount >= $quizMaxAttempt->attempts_allowed) {
             $canAttemptMax = false;
-            $message = 'Anda sudah mencapai batas attempt yang diperbolehkan.';
+            $message = 'Anda telah mencapai batas maksimum pengerjaan quiz';
         }
         $this->assertFalse($canAttemptMax);
-        $this->assertEquals('Anda sudah mencapai batas attempt yang diperbolehkan.', $message);
+        $this->assertEquals('Anda telah mencapai batas maksimum pengerjaan quiz', $message);
     }
 
     /**
      * Test perhitungan skor.
      */
-    public function testScoreCalculation()
+    public function test_score_calculation()
     {
         // Mock quiz
         $quiz = Quiz::factory()->create();
@@ -290,7 +289,7 @@ class QuizUnitTest extends TestCase
         $countableQuestions = 0;
 
         foreach ($questions as $question) {
-            if ($question->type !== 'esai' && !empty($question->options)) {
+            if ($question->type !== 'esai' && ! empty($question->options)) {
                 $correctOption = collect($question->options)->firstWhere('is_correct', true);
                 if ($correctOption) {
                     $countableQuestions++;
@@ -298,7 +297,7 @@ class QuizUnitTest extends TestCase
                     if ($answer) {
                         $normalizedCorrect = strtolower(trim($correctOption['text']));
                         $normalizedAnswer = strtolower(trim($answer->answer_text));
-                        if (!empty($answer->answer_text) && $normalizedCorrect === $normalizedAnswer) {
+                        if (! empty($answer->answer_text) && $normalizedCorrect === $normalizedAnswer) {
                             $correctCount++;
                         }
                     }
@@ -323,7 +322,7 @@ class QuizUnitTest extends TestCase
         $correctCount = 0;
         $countableQuestions = 0; // Reset
         foreach ($questions as $question) {
-            if ($question->type !== 'esai' && !empty($question->options)) {
+            if ($question->type !== 'esai' && ! empty($question->options)) {
                 $correctOption = collect($question->options)->firstWhere('is_correct', true);
                 if ($correctOption) {
                     $countableQuestions++;
@@ -331,7 +330,7 @@ class QuizUnitTest extends TestCase
                     if ($answer) {
                         $normalizedCorrect = strtolower(trim($correctOption['text']));
                         $normalizedAnswer = strtolower(trim($answer->answer_text));
-                        if (!empty($answer->answer_text) && $normalizedCorrect === $normalizedAnswer) {
+                        if (! empty($answer->answer_text) && $normalizedCorrect === $normalizedAnswer) {
                             $correctCount++;
                         }
                     }

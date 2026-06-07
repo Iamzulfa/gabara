@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 class Quiz extends Model
@@ -13,7 +12,9 @@ class Quiz extends Model
     use HasFactory, HasUuids;
 
     protected $table = 'quizzes';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = ['title', 'description', 'open_datetime', 'close_datetime', 'time_limit_minutes', 'status', 'attempts_allowed', 'class_id'];
@@ -27,7 +28,7 @@ class Quiz extends Model
     ];
 
     protected $attributes = [
-        'status' => 'close', // default sesuai migration
+        'status' => 'Draf',
         'attempts_allowed' => 1,
     ];
 
@@ -43,7 +44,6 @@ class Quiz extends Model
     }
 
     /** RELATIONSHIPS */
-
     public function class()
     {
         return $this->belongsTo(ClassModel::class, 'class_id');

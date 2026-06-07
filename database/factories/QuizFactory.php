@@ -2,11 +2,10 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Quiz;
 use App\Models\ClassModel;
-use Illuminate\Support\Str;
+use App\Models\Quiz;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class QuizFactory extends Factory
 {
@@ -24,7 +23,8 @@ class QuizFactory extends Factory
             'open_datetime' => $start,
             'close_datetime' => $end,
             'time_limit_minutes' => 60,
-            'status' => 'active',
+            'status' => 'Diterbitkan',
+            'attempts_allowed' => 1,
         ];
     }
 }

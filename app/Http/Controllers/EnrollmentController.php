@@ -16,7 +16,7 @@ class EnrollmentController extends Controller
                 'enrollment_code' => 'required|string',
             ],
             [
-                'enrollment_code.required' => 'Kode kelas wajib diisi.'
+                'enrollment_code.required' => 'Kode kelas wajib diisi',
             ]
         );
 
@@ -28,7 +28,7 @@ class EnrollmentController extends Controller
 
         $class = ClassModel::where('enrollment_code', $request->enrollment_code)->first();
 
-        if (!$class) {
+        if (! $class) {
             return back()->withErrors(['enrollment_code' => 'Kode kelas tidak ditemukan']);
         }
 
@@ -40,7 +40,7 @@ class EnrollmentController extends Controller
             return back()->withErrors(['enrollment_code' => 'Anda sudah terdaftar di kelas ini']);
         }
 
-        if (!$class->visibility) {
+        if (! $class->visibility) {
             return back()->withErrors(['enrollment_code' => 'Kelas tidak tersedia untuk pendaftaran']);
         }
 

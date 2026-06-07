@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('quizzes', function (Blueprint $table) {
+        Schema::create('quizzes', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('title');
             $table->text('description');
             $table->datetime('open_datetime');
             $table->datetime('close_datetime');
             $table->integer('time_limit_minutes');
-            
+
             $table->integer('attempts_allowed')->default(1);
-            $table->string('status')->default('close')->comment('open/close');
+            $table->string('status')->default('Draf')->comment('Draf/Diterbitkan');
             $table->uuid('class_id');
             $table->foreign('class_id')->references('id')->on('classes')->onDelete('cascade');
             $table->timestamps();

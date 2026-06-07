@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Quiz;
 use App\Models\ClassModel;
-use App\Models\QuizAttempt;
+use App\Models\Quiz;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 
 class QuizController extends Controller
 {
@@ -28,7 +26,7 @@ class QuizController extends Controller
             ->withCount('questions')
             ->orderByDesc('created_at')
             ->get();
-            
+
         $classes = ClassModel::select('id', 'name')->get();
 
         return Inertia::render('Quizzes/Quiz', [
@@ -89,15 +87,15 @@ class QuizController extends Controller
         $closeDatetime = null;
 
         if ($validated['date_open'] && $validated['time_open']) {
-            $openDatetime = $validated['date_open'] . ' ' . $validated['time_open'] . ':00';
+            $openDatetime = $validated['date_open'].' '.$validated['time_open'].':00';
         } elseif ($validated['date_open']) {
-            $openDatetime = $validated['date_open'] . ' 00:00:00';
+            $openDatetime = $validated['date_open'].' 00:00:00';
         }
 
         if ($validated['date_close'] && $validated['time_close']) {
-            $closeDatetime = $validated['date_close'] . ' ' . $validated['time_close'] . ':00';
+            $closeDatetime = $validated['date_close'].' '.$validated['time_close'].':00';
         } elseif ($validated['date_close']) {
-            $closeDatetime = $validated['date_close'] . ' 23:59:59';
+            $closeDatetime = $validated['date_close'].' 23:59:59';
         }
 
         // Validasi bahwa close datetime setelah open datetime jika keduanya ada
@@ -146,6 +144,7 @@ class QuizController extends Controller
             } else {
                 $question->options = [];
             }
+
             return $question;
         });
 
@@ -172,6 +171,7 @@ class QuizController extends Controller
             } else {
                 $question->options = [];
             }
+
             return $question;
         });
 
@@ -245,15 +245,15 @@ class QuizController extends Controller
         $closeDatetime = null;
 
         if ($validated['date_open'] && $validated['time_open']) {
-            $openDatetime = $validated['date_open'] . ' ' . $validated['time_open'] . ':00';
+            $openDatetime = $validated['date_open'].' '.$validated['time_open'].':00';
         } elseif ($validated['date_open']) {
-            $openDatetime = $validated['date_open'] . ' 00:00:00';
+            $openDatetime = $validated['date_open'].' 00:00:00';
         }
 
         if ($validated['date_close'] && $validated['time_close']) {
-            $closeDatetime = $validated['date_close'] . ' ' . $validated['time_close'] . ':00';
+            $closeDatetime = $validated['date_close'].' '.$validated['time_close'].':00';
         } elseif ($validated['date_close']) {
-            $closeDatetime = $validated['date_close'] . ' 23:59:59';
+            $closeDatetime = $validated['date_close'].' 23:59:59';
         }
 
         // Validasi bahwa close datetime setelah open datetime jika keduanya ada
@@ -290,6 +290,7 @@ class QuizController extends Controller
             $this->authorizeMentorAction($quiz); // Keamanan
         }
         $quiz->delete();
+
         return redirect()->route('quizzes.index')->with('success', 'Quiz berhasil dihapus');
     }
 
@@ -337,114 +338,111 @@ class QuizController extends Controller
     /**
      * Menampilkan detail kuis untuk siswa di dalam kelas tertentu.
      */
-   public function showForStudent(ClassModel $class, Quiz $quiz)
-{
-    $user = Auth::user();
+    public function showForStudent(ClassModel $class, Quiz $quiz)
+    {
+        $user = Auth::user();
 
-    // 🔒 Pastikan siswa terdaftar di kelas & kuis sesuai kelas
-    if (
-        !$class->enrollments()->where('student_id', $user->id)->exists() ||
-        $quiz->class_id !== $class->id
-    ) {
-        abort(403, 'Akses tidak diizinkan.');
-    }
+        // 🔒 Pastikan siswa terdaftar di kelas & kuis sesuai kelas
+        if (
+            ! $class->enrollments()->where('student_id', $user->id)->exists() ||
+            $quiz->class_id !== $class->id
+        ) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
 
-    // 🚫 Jika belum dipublikasikan, jangan tampilkan ke siswa
-    if ($quiz->status !== 'Diterbitkan' && $user->role === 'student') {
-        abort(403, 'Kuis ini belum tersedia.');
-    }
+        // 🚫 Jika belum dipublikasikan, jangan tampilkan ke siswa
+        if ($quiz->status !== 'Diterbitkan' && $user->role === 'student') {
+            abort(403, 'Kuis ini belum tersedia.');
+        }
 
-    // 📦 Load relasi dasar
-    $quiz->load('class:id,name')->loadCount('questions');
+        // 📦 Load relasi dasar
+        $quiz->load('class:id,name')->loadCount('questions');
 
-    // 🧭 Ambil semua attempt milik user untuk kuis ini (beserta jawaban dan soal)
-    $allAttempts = $quiz->quizAttempts()
-        ->with(['answers', 'quiz.questions'])
-        ->where('student_id', $user->id)
-        ->orderByDesc('created_at')
-        ->get()
-        ->map(function ($attempt) {
-            $totalQuestions = $attempt->quiz->questions->count();
-            $answeredCount = $attempt->answers->count();
+        // 🧭 Ambil semua attempt milik user untuk kuis ini (beserta jawaban dan soal)
+        $allAttempts = $quiz->quizAttempts()
+            ->with(['answers', 'quiz.questions'])
+            ->where('student_id', $user->id)
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($attempt) {
+                $totalQuestions = $attempt->quiz->questions->count();
+                $answeredCount = $attempt->answers->count();
 
-            $correctCount = 0;
-            foreach ($attempt->quiz->questions as $q) {
-                if ($q->type !== 'esai' && !empty($q->options)) {
-                    $options = is_array($q->options)
-                        ? $q->options
-                        : json_decode($q->options, true);
+                $correctCount = 0;
+                foreach ($attempt->quiz->questions as $q) {
+                    if ($q->type !== 'esai' && ! empty($q->options)) {
+                        $options = is_array($q->options)
+                            ? $q->options
+                            : json_decode($q->options, true);
 
-                    $correctOption = collect($options)->firstWhere('is_correct', true);
-                    $answer = $attempt->answers->firstWhere('question_id', $q->id);
+                        $correctOption = collect($options)->firstWhere('is_correct', true);
+                        $answer = $attempt->answers->firstWhere('question_id', $q->id);
 
-                    if ($correctOption && $answer) {
-                        if (strtolower(trim($correctOption['text'])) === strtolower(trim($answer->answer_text))) {
-                            $correctCount++;
+                        if ($correctOption && $answer) {
+                            if (strtolower(trim($correctOption['text'])) === strtolower(trim($answer->answer_text))) {
+                                $correctCount++;
+                            }
                         }
                     }
                 }
-            }
 
-            // 💡 Tambahkan field dinamis agar bisa dipakai langsung di frontend
-            $attempt->answered_count = $answeredCount;
-            $attempt->correct_count = $correctCount;
-            $attempt->total_questions = $totalQuestions;
+                // 💡 Tambahkan field dinamis agar bisa dipakai langsung di frontend
+                $attempt->answered_count = $answeredCount;
+                $attempt->correct_count = $correctCount;
+                $attempt->total_questions = $totalQuestions;
 
-            return $attempt;
-        });
+                return $attempt;
+            });
 
-    // 🔄 Temukan attempt yang sedang berlangsung
-    $latestAttempt = $allAttempts->firstWhere('status', 'in_progress');
+        // 🔄 Temukan attempt yang sedang berlangsung
+        $latestAttempt = $allAttempts->firstWhere('status', 'in_progress');
 
-    // ✅ Jika tidak ada in_progress, ambil attempt terakhir (entah selesai atau belum)
-    if (!$latestAttempt && $allAttempts->isNotEmpty()) {
-        $latestAttempt = $allAttempts->first();
-    }
-
-    // 🧮 Hitung jumlah attempt yang sudah selesai
-    $finishedAttemptCount = $allAttempts
-        ->whereIn('status', ['finished', 'completed'])
-        ->count();
-
-    // ⚙️ Tentukan apakah siswa boleh memulai attempt baru
-    $canAttempt = true;
-    $message = null;
-    $now = now();
-
-    // 🚫 Cegah jika di luar jadwal
-    if ($quiz->open_datetime && $now->isBefore($quiz->open_datetime)) {
-        $canAttempt = false;
-        $message = 'Kuis belum dibuka.';
-    } elseif ($quiz->close_datetime && $now->isAfter($quiz->close_datetime)) {
-        $canAttempt = false;
-        $message = 'Quiz sudah ditutup';
-    } else {
-        // 🔁 Jika ada attempt in_progress, tetap boleh lanjut
-        if ($latestAttempt && $latestAttempt->status === 'in_progress') {
-            $canAttempt = true;
+        // ✅ Jika tidak ada in_progress, ambil attempt terakhir (entah selesai atau belum)
+        if (! $latestAttempt && $allAttempts->isNotEmpty()) {
+            $latestAttempt = $allAttempts->first();
         }
-        // 🚧 Kalau tidak ada yang in_progress dan sudah capai limit → dilarang
-        elseif ($quiz->attempts_allowed > 0 && $finishedAttemptCount >= $quiz->attempts_allowed) {
+
+        // 🧮 Hitung jumlah attempt yang sudah selesai
+        $finishedAttemptCount = $allAttempts
+            ->whereIn('status', ['finished', 'completed'])
+            ->count();
+
+        // ⚙️ Tentukan apakah siswa boleh memulai attempt baru
+        $canAttempt = true;
+        $message = null;
+        $now = now();
+
+        // 🚫 Cegah jika di luar jadwal
+        if ($quiz->open_datetime && $now->isBefore($quiz->open_datetime)) {
             $canAttempt = false;
-            $message = 'Anda telah mencapai batas maksimum pengerjaan quiz';
+            $message = 'Tidak bisa memulai';
+        } elseif ($quiz->close_datetime && $now->isAfter($quiz->close_datetime)) {
+            $canAttempt = false;
+            $message = 'Quiz sudah ditutup';
         } else {
-            $canAttempt = true; // masih boleh mulai attempt baru
+            // 🔁 Jika ada attempt in_progress, tetap boleh lanjut
+            if ($latestAttempt && $latestAttempt->status === 'in_progress') {
+                $canAttempt = true;
+            }
+            // 🚧 Kalau tidak ada yang in_progress dan sudah capai limit → dilarang
+            elseif ($quiz->attempts_allowed > 0 && $finishedAttemptCount >= $quiz->attempts_allowed) {
+                $canAttempt = false;
+                $message = 'Anda telah mencapai batas maksimum pengerjaan quiz';
+            } else {
+                $canAttempt = true; // masih boleh mulai attempt baru
+            }
         }
+
+        // 📤 Kirim data ke Inertia
+        return Inertia::render('Quizzes/QuizInfo', [
+            'quiz' => $quiz,
+            'attempt' => $latestAttempt,
+            'attempts' => $allAttempts,
+            'can_attempt' => $canAttempt,
+            'message' => $message,
+            'classData' => $class->only(['id', 'name']),
+        ]);
     }
-
-    // 📤 Kirim data ke Inertia
-    return Inertia::render('Quizzes/QuizInfo', [
-        'quiz' => $quiz,
-        'attempt' => $latestAttempt,
-        'attempts' => $allAttempts,
-        'can_attempt' => $canAttempt,
-        'message' => $message,
-        'classData' => $class->only(['id', 'name']),
-    ]);
-}
-
-
-
 
     // =========================================================================
     // ===== HELPER UNTUK KEAMANAN =====
