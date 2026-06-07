@@ -62,7 +62,7 @@ export interface Submission {
     student_name: string;
     submitted_at?: string;
     submission_content?: string;
-    grade?: number;
+    grade?: number | null;
     feedback?: string;
     created_at: string;
 }
@@ -116,7 +116,7 @@ export interface Class {
 export interface Grade {
     item: string;
     student_name?: string;
-    score?: number;
+    score?: number | null;
     feedback?: string;
     status: string;
 }
@@ -223,7 +223,7 @@ export interface QuizInfoPageProps extends InertiaPageProps {
     user_id: string;
     started_at: string;
     completed_at?: string;
-    score?: number;
+    score?: number | null;
     total_questions?: number;
     correct_answers?: number;
     incorrect_answers?: number;
@@ -245,7 +245,7 @@ export interface QuizAttemptType {
   student_id: string;
   started_at: string;
   finished_at?: string;
-  score?: number;
+  score?: number | null;
   status: "in_progress" | "finished" | "completed" | "not_started";
   answers?: any[];
 }

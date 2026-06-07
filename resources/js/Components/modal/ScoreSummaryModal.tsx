@@ -21,7 +21,7 @@ interface Answer {
 
 interface QuizAttempt {
   id: string;
-  score: number;
+  score: number | null;
   quiz: {
     title: string;
     questions: Question[];
@@ -73,7 +73,7 @@ const ScoreSummaryModal: React.FC<ScoreSummaryModalProps> = ({
         <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
           Skor:{" "}
           <span className="font-bold text-green-600 dark:text-green-400">
-            {score}%
+            {score === null || typeof score === "undefined" ? "Menunggu penilaian manual" : `${score}%`}
           </span>
         </div>
 
@@ -93,7 +93,7 @@ const ScoreSummaryModal: React.FC<ScoreSummaryModalProps> = ({
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    {question.options?.map((option, i) => {
+                    {question.options?.length ? question.options.map((option, i) => {
                       const isSelected = userAnswer?.answer_text === option.text;
                       const isCorrect = option.is_correct;
 
@@ -125,7 +125,11 @@ const ScoreSummaryModal: React.FC<ScoreSummaryModalProps> = ({
                           )}
                         </div>
                       );
-                    })}
+                    }) : (
+                      <div className="rounded-md border border-gray-200 px-4 py-2 text-gray-700 dark:border-gray-700 dark:text-gray-300">
+                        Jawaban esai: {userAnswer?.answer_text || "-"}
+                      </div>
+                    )}
                   </div>
                 </div>
               );

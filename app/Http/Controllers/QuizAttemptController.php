@@ -6,6 +6,7 @@ use App\Models\Answer;
 use App\Models\ClassModel;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Services\FunctionalTestcase\QuizRules;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,44 +20,22 @@ class QuizAttemptController extends Controller
     public function start(Request $request, ClassModel $class, Quiz $quiz)
     {
         $user = Auth::user();
+        $rules = app(QuizRules::class);
 
-        // Cek enroll
-        if ($class && ! $class->enrollments()->where('student_id', $user->id)->exists()) {
-            return back()->withErrors(['authorization' => 'Anda tidak terdaftar di kelas ini.']);
+        $decision = $rules->startDecision(
+            $quiz,
+            $class->enrollments()->where('student_id', $user->id)->exists(),
+            $quiz->class_id === $class->id,
+            $rules->activeAttempt($quiz, $user->id),
+            $rules->completedAttemptCount($quiz, $user->id)
+        );
+
+        if (! $decision['allowed']) {
+            return back()->withErrors([$decision['key'] => $decision['message']]);
         }
 
-        // Pastikan quiz sesuai kelas
-        if ($class && $quiz->class_id !== $class->id) {
-            return back()->withErrors(['quiz' => 'Kuis tidak ditemukan di kelas ini.']);
-        }
-
-        if ($quiz->status !== 'Diterbitkan') {
-            return back()->withErrors(['quiz' => 'Kuis ini belum tersedia.']);
-        }
-
-        // Cari attempt aktif
-        $existing = QuizAttempt::where('quiz_id', $quiz->id)
-            ->where('student_id', $user->id)
-            ->where('status', 'in_progress')
-            ->first();
-
-        if ($existing) {
-            return redirect()->route('quiz.attempts.show', $existing->id);
-        }
-
-        // Validasi waktu
-        $now = now();
-        if ($quiz->open_datetime && $now->isBefore($quiz->open_datetime)) {
-            return back()->withErrors(['quiz' => 'Tidak bisa memulai']);
-        }
-        if ($quiz->close_datetime && $now->isAfter($quiz->close_datetime)) {
-            return back()->withErrors(['quiz' => 'Quiz sudah ditutup']);
-        }
-
-        // Validasi attempt count
-        $count = $quiz->quizAttempts()->where('student_id', $user->id)->count();
-        if ($quiz->attempts_allowed > 0 && $count >= $quiz->attempts_allowed) {
-            return back()->withErrors(['quiz' => 'Anda telah mencapai batas maksimum pengerjaan quiz']);
+        if ($decision['action'] === QuizRules::ACTION_RESUME) {
+            return redirect()->route('quiz.attempts.show', $decision['attempt']->id);
         }
 
         $attempt = QuizAttempt::create([
@@ -123,9 +102,6 @@ class QuizAttemptController extends Controller
             $quiz = $attempt->quiz()->with('questions')->firstOrFail();
             $questions = $quiz->questions;
 
-            $correctCount = 0;
-            $countableQuestions = 0;
-
             // Hapus jawaban lama
             $attempt->answers()->delete();
 
@@ -142,28 +118,12 @@ class QuizAttemptController extends Controller
                     'answer_text' => $answerText,
                 ]);
 
-                // Hitung score hanya untuk non-esai
-                if ($question->type !== 'esai' && ! empty($question->options)) {
-                    $correctOption = collect($question->options)->firstWhere('is_correct', true);
-                    if ($correctOption) {
-                        $countableQuestions++;
-                        $normalizedCorrect = strtolower(trim($correctOption['text']));
-                        $normalizedAnswer = strtolower(trim($answerText));
-                        if (! empty($answerText) && $normalizedCorrect === $normalizedAnswer) {
-                            $correctCount++;
-                        }
-                    }
-                }
             }
-
-            $score = $countableQuestions > 0
-                ? round(($correctCount / $countableQuestions) * 100, 2)
-                : null;
 
             $attempt->update([
                 'finished_at' => now(),
                 'status' => 'completed',
-                'score' => $score,
+                'score' => app(QuizRules::class)->scoreFor($questions, $validated['answers']),
             ]);
         });
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassModel;
 use App\Models\Quiz;
+use App\Services\FunctionalTestcase\QuizRules;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -341,6 +342,7 @@ class QuizController extends Controller
     public function showForStudent(ClassModel $class, Quiz $quiz)
     {
         $user = Auth::user();
+        $rules = app(QuizRules::class);
 
         // 🔒 Pastikan siswa terdaftar di kelas & kuis sesuai kelas
         if (
@@ -395,7 +397,8 @@ class QuizController extends Controller
             });
 
         // 🔄 Temukan attempt yang sedang berlangsung
-        $latestAttempt = $allAttempts->firstWhere('status', 'in_progress');
+        $activeAttempt = $allAttempts->firstWhere('status', 'in_progress');
+        $latestAttempt = $activeAttempt;
 
         // ✅ Jika tidak ada in_progress, ambil attempt terakhir (entah selesai atau belum)
         if (! $latestAttempt && $allAttempts->isNotEmpty()) {
@@ -404,42 +407,18 @@ class QuizController extends Controller
 
         // 🧮 Hitung jumlah attempt yang sudah selesai
         $finishedAttemptCount = $allAttempts
-            ->whereIn('status', ['finished', 'completed'])
+            ->whereIn('status', QuizRules::completedStatuses())
             ->count();
 
-        // ⚙️ Tentukan apakah siswa boleh memulai attempt baru
-        $canAttempt = true;
-        $message = null;
-        $now = now();
-
-        // 🚫 Cegah jika di luar jadwal
-        if ($quiz->open_datetime && $now->isBefore($quiz->open_datetime)) {
-            $canAttempt = false;
-            $message = 'Tidak bisa memulai';
-        } elseif ($quiz->close_datetime && $now->isAfter($quiz->close_datetime)) {
-            $canAttempt = false;
-            $message = 'Quiz sudah ditutup';
-        } else {
-            // 🔁 Jika ada attempt in_progress, tetap boleh lanjut
-            if ($latestAttempt && $latestAttempt->status === 'in_progress') {
-                $canAttempt = true;
-            }
-            // 🚧 Kalau tidak ada yang in_progress dan sudah capai limit → dilarang
-            elseif ($quiz->attempts_allowed > 0 && $finishedAttemptCount >= $quiz->attempts_allowed) {
-                $canAttempt = false;
-                $message = 'Anda telah mencapai batas maksimum pengerjaan quiz';
-            } else {
-                $canAttempt = true; // masih boleh mulai attempt baru
-            }
-        }
-
         // 📤 Kirim data ke Inertia
+        $decision = $rules->startDecision($quiz, true, true, $activeAttempt, $finishedAttemptCount);
+
         return Inertia::render('Quizzes/QuizInfo', [
             'quiz' => $quiz,
             'attempt' => $latestAttempt,
             'attempts' => $allAttempts,
-            'can_attempt' => $canAttempt,
-            'message' => $message,
+            'can_attempt' => $decision['allowed'],
+            'message' => $decision['message'],
             'classData' => $class->only(['id', 'name']),
         ]);
     }

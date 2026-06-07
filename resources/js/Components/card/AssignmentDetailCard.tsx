@@ -73,7 +73,7 @@ export default function AssignmentDetailCard() {
 
     const openModal = (submission: Submission) => {
         setSelectedSubmission(submission);
-        setGrade(submission.grade || "");
+        setGrade(submission.grade ?? "");
         setFeedback(submission.feedback || "");
         setIsModalOpen(true);
     };
@@ -273,6 +273,7 @@ export default function AssignmentDetailCard() {
                                         <input
                                             type="file"
                                             name="file"
+                                            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                             className="file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/80"
                                         />
                                         {errors.file && (
@@ -312,7 +313,7 @@ export default function AssignmentDetailCard() {
                                     </tr>
                                     <tr className="border-b">
                                         <td className="py-2 px-3 border-r">Status penilaian</td>
-                                        <td className="py-2 px-3">{studentSubmission?.grade ? studentSubmission.grade : "Belum dinilai"}</td>
+                                        <td className="py-2 px-3">{studentSubmission?.grade !== null && studentSubmission?.grade !== undefined ? studentSubmission.grade : "Belum dinilai"}</td>
                                     </tr>
                                     <tr className="border-b">
                                         <td className="py-2 px-3 border-r">Waktu tersisa</td>
@@ -392,7 +393,7 @@ export default function AssignmentDetailCard() {
                                                     </a>
                                                 ) : "-"}
                                             </td>
-                                            <td className="py-2 px-4 text-center whitespace-nowrap">{submission.grade ? submission.grade : "-"}</td>
+                                            <td className="py-2 px-4 text-center whitespace-nowrap">{submission.grade !== null && submission.grade !== undefined ? submission.grade : "-"}</td>
                                             <td className="py-2 px-4 text-center whitespace-nowrap">
                                                 <Button
                                                     variant="default"
@@ -420,7 +421,7 @@ export default function AssignmentDetailCard() {
                                     <div>
                                         <Label required={true}>Nilai</Label>
                                         <CurrencyInput
-                                            value={Number(grade ?? (selectedSubmission?.grade || 0))}
+                                            value={Number(grade ?? selectedSubmission?.grade ?? 0)}
                                             onChange={(e) => setGrade(e)}
                                             placeholder="Masukkan nilai (0-100)"
                                         />

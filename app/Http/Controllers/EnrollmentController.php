@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassModel;
 use App\Models\Enrollment;
+use App\Services\FunctionalTestcase\EnrollmentRules;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,11 +14,9 @@ class EnrollmentController extends Controller
     {
         $request->validate(
             [
-                'enrollment_code' => 'required|string',
+                'enrollment_code' => EnrollmentRules::codeRules(),
             ],
-            [
-                'enrollment_code.required' => 'Kode kelas wajib diisi',
-            ]
+            EnrollmentRules::codeMessages()
         );
 
         $user = Auth::user();
@@ -29,19 +28,16 @@ class EnrollmentController extends Controller
         $class = ClassModel::where('enrollment_code', $request->enrollment_code)->first();
 
         if (! $class) {
-            return back()->withErrors(['enrollment_code' => 'Kode kelas tidak ditemukan']);
+            return back()->withErrors(['enrollment_code' => EnrollmentRules::ERROR_NOT_FOUND]);
         }
 
         $alreadyEnrolled = Enrollment::where('class_id', $class->id)
             ->where('student_id', $user->id)
             ->exists();
 
-        if ($alreadyEnrolled) {
-            return back()->withErrors(['enrollment_code' => 'Anda sudah terdaftar di kelas ini']);
-        }
-
-        if (! $class->visibility) {
-            return back()->withErrors(['enrollment_code' => 'Kelas tidak tersedia untuk pendaftaran']);
+        $decision = app(EnrollmentRules::class)->decide($class, $alreadyEnrolled);
+        if (! $decision['allowed']) {
+            return back()->withErrors(['enrollment_code' => $decision['message']]);
         }
 
         Enrollment::create([
@@ -49,6 +45,6 @@ class EnrollmentController extends Controller
             'student_id' => $user->id,
         ]);
 
-        return redirect()->route('classes.index')->with('success', 'Berhasil mendaftar kelas');
+        return redirect()->route('classes.index')->with('success', EnrollmentRules::SUCCESS_ENROLLED);
     }
 }

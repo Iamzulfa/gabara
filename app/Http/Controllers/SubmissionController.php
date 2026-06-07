@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Assignment;
 use App\Models\Submission;
-use Carbon\Carbon;
+use App\Services\FunctionalTestcase\SubmissionRules;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,21 +15,16 @@ class SubmissionController extends Controller
     {
         $request->validate(
             [
-                'file' => 'required|file|mimes:pdf,docx|min:1|max:2048',
+                'file' => SubmissionRules::fileRules(),
             ],
-            [
-                'file.required' => 'File tidak boleh kosong',
-                'file.min' => 'File tidak boleh kosong',
-                'file.mimes' => 'Tipe file tidak didukung. Hanya PDF dan DOCX yang diizinkan',
-                'file.max' => 'Ukuran file maksimal 2 MB',
-            ]
+            SubmissionRules::fileMessages()
         );
 
         $assignment = Assignment::findOrFail($assignmentId);
 
-        if ($this->isPastDeadline($assignment)) {
+        if (app(SubmissionRules::class)->isPastDeadline($assignment)) {
             return redirect()->back()->withErrors([
-                'file' => 'Batas waktu pengumpulan telah lewat',
+                'file' => SubmissionRules::ERROR_DEADLINE,
             ]);
         }
 
@@ -65,7 +60,7 @@ class SubmissionController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Tugas berhasil dikumpulkan');
+            return redirect()->back()->with('success', SubmissionRules::SUCCESS_SUBMITTED);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -81,21 +76,16 @@ class SubmissionController extends Controller
 
         $request->validate(
             [
-                'file' => 'required|file|mimes:pdf,docx|min:1|max:2048',
+                'file' => SubmissionRules::fileRules(),
             ],
-            [
-                'file.required' => 'File tidak boleh kosong',
-                'file.min' => 'File tidak boleh kosong',
-                'file.mimes' => 'Tipe file tidak didukung. Hanya PDF dan DOCX yang diizinkan',
-                'file.max' => 'Ukuran file maksimal 2 MB',
-            ]
+            SubmissionRules::fileMessages()
         );
 
         $assignment = Assignment::findOrFail($assignmentId);
 
-        if ($this->isPastDeadline($assignment)) {
+        if (app(SubmissionRules::class)->isPastDeadline($assignment)) {
             return redirect()->back()->withErrors([
-                'file' => 'Batas waktu pengumpulan telah lewat',
+                'file' => SubmissionRules::ERROR_DEADLINE,
             ]);
         }
 
@@ -124,7 +114,7 @@ class SubmissionController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Submission berhasil diperbarui');
+            return redirect()->back()->with('success', SubmissionRules::SUCCESS_UPDATED);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -159,16 +149,10 @@ class SubmissionController extends Controller
 
     public function updateGrade(Request $request, $classId, $assignmentId, $submissionId)
     {
-        $request->validate([
-            'grade' => 'required|numeric|min:0|max:100',
-            'feedback' => 'nullable|string|max:255',
-        ], [
-            'grade.required' => 'Nilai harus diisi.',
-            'grade.numeric' => 'Nilai harus berupa angka.',
-            'grade.min' => 'Nilai minimal adalah 0.',
-            'grade.max' => 'Nilai maksimal adalah 100.',
-            'feedback.max' => 'Feedback maksimal 255 karakter.',
-        ]);
+        $request->validate(
+            SubmissionRules::gradeRules(),
+            SubmissionRules::gradeMessages()
+        );
 
         $submission = Submission::findOrFail($submissionId);
         $submission->update([
@@ -176,24 +160,6 @@ class SubmissionController extends Controller
             'feedback' => $request->feedback,
         ]);
 
-        return redirect()->back()->with('success', 'Nilai berhasil disimpan!');
-    }
-
-    private function isPastDeadline(Assignment $assignment): bool
-    {
-        if (! $assignment->date_close || ! $assignment->time_close) {
-            return false;
-        }
-
-        $date = Carbon::parse($assignment->date_close)->toDateString();
-        $time = trim((string) $assignment->time_close);
-
-        if (str_contains($time, ' ')) {
-            $time = Carbon::parse($time)->format('H:i:s');
-        }
-
-        $deadline = Carbon::parse($date.' '.$time);
-
-        return now()->greaterThan($deadline);
+        return redirect()->back()->with('success', SubmissionRules::SUCCESS_GRADED);
     }
 }

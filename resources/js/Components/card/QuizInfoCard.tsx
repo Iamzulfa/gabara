@@ -30,7 +30,7 @@ export default function QuizInfoCard() {
     // hitung jumlah jawaban yang ada (tidak kosong)
     const answered = it.answers?.filter((a: any) => a.answer_text !== null && a.answer_text !== "").length ?? 0;
     const correct = it.correct_count ?? 0;
-    const score = it.score ?? 0;
+    const score = it.score;
     const wrong = answered - correct;
     return { answered, total: totalQuestions, correct, wrong, score };
   };
@@ -203,8 +203,10 @@ export default function QuizInfoCard() {
                   <div className="text-sm">
                     Jawaban: {prev.answered ?? "-"} / {prev.total ?? "-"}
                   </div>
-                  {typeof prev.score !== "undefined" && (
+                  {prev.score !== null && typeof prev.score !== "undefined" ? (
                     <div className="text-sm mb-2">Skor: {prev.score}</div>
+                  ) : (
+                    <div className="text-sm mb-2">Skor: Menunggu penilaian manual</div>
                   )}
                   {/* ✅ Tombol buka modal */}
                   {["finished", "completed"].includes(it.status) && (
