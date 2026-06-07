@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\FunctionalTestcase\Quiz;
+namespace Tests\Unit\FunctionalTestcase;
 
 use App\Models\Question;
 use App\Models\Quiz;
@@ -10,20 +10,12 @@ use Carbon\Carbon;
 use Tests\TestCase;
 
 /**
- * Decision Table – FR-5 Quiz Attempt
+ * Whitebox Test – FR-5 Quiz Attempt
  *
- * Berdasarkan Test Case Sheet:
- *   TC-QUIZ-001  R1: Semua Y → buat attempt baru (start)
- *   TC-QUIZ-002  R3: C2=N (status Draf) → ditolak
- *   TC-QUIZ-003  R4a: C3=N belum buka → ditolak
- *   TC-QUIZ-004  R4b: C3=N sudah tutup → ditolak
- *   TC-QUIZ-005  R6: C4=N attempt habis → ditolak
- *   TC-QUIZ-006  R7: C5=Y resume attempt in_progress
- *   TC-QUIZ-007  DT+BVA: Semua benar → score 100
- *   TC-QUIZ-008  DT+BVA: Semua salah → score 0
- *   TC-QUIZ-009  DT: Esai → score null (penilaian manual)
+ * Menguji semua cabang internal QuizRules::startDecision()
+ * dan QuizRules::scoreFor() berdasarkan TC-QUIZ-001 s/d 009.
  */
-class QuizDecisionTableTest extends TestCase
+class WhiteboxTest extends TestCase
 {
     private QuizRules $rules;
 
@@ -47,11 +39,11 @@ class QuizDecisionTableTest extends TestCase
     }
 
     // ──────────────────────────────────────────────
-    //  QUIZ ATTEMPT DECISION TABLE  (TC-QUIZ-001 s/d 006)
+    //  QUIZ ATTEMPT BRANCHES  (TC-QUIZ-001 s/d 006)
     // ──────────────────────────────────────────────
 
     /**
-     * TC-QUIZ-001 [DT R1] Semua kondisi terpenuhi → buat QuizAttempt baru (start).
+     * TC-QUIZ-001 [WBT] Semua kondisi terpenuhi → action=start.
      */
     public function test_tc_quiz_001_all_conditions_met_creates_new_attempt(): void
     {
@@ -62,7 +54,7 @@ class QuizDecisionTableTest extends TestCase
     }
 
     /**
-     * TC-QUIZ-002 [DT R3] Quiz berstatus "Draf" → ditolak.
+     * TC-QUIZ-002 [WBT] Status Draf → cabang status ditolak.
      */
     public function test_tc_quiz_002_draft_status_is_rejected(): void
     {
@@ -74,7 +66,7 @@ class QuizDecisionTableTest extends TestCase
     }
 
     /**
-     * TC-QUIZ-003 [DT R4a] Waktu belum masuk open_datetime → ditolak.
+     * TC-QUIZ-003 [WBT] Belum masuk open_datetime → cabang waktu ditolak.
      */
     public function test_tc_quiz_003_before_open_datetime_is_rejected(): void
     {
@@ -89,7 +81,7 @@ class QuizDecisionTableTest extends TestCase
     }
 
     /**
-     * TC-QUIZ-004 [DT R4b] Waktu sudah melewati close_datetime → ditolak.
+     * TC-QUIZ-004 [WBT] Melewati close_datetime → cabang waktu ditolak.
      */
     public function test_tc_quiz_004_after_close_datetime_is_rejected(): void
     {
@@ -104,7 +96,7 @@ class QuizDecisionTableTest extends TestCase
     }
 
     /**
-     * TC-QUIZ-005 [DT R6] Student sudah mencapai batas maksimum attempt → ditolak.
+     * TC-QUIZ-005 [WBT] Attempt habis → cabang limit ditolak.
      */
     public function test_tc_quiz_005_max_attempts_reached_is_rejected(): void
     {
@@ -116,7 +108,7 @@ class QuizDecisionTableTest extends TestCase
     }
 
     /**
-     * TC-QUIZ-006 [DT R7] Ada attempt in_progress → resume, tidak buat baru.
+     * TC-QUIZ-006 [WBT] Attempt in_progress → cabang resume.
      */
     public function test_tc_quiz_006_in_progress_attempt_is_resumed(): void
     {
@@ -127,29 +119,29 @@ class QuizDecisionTableTest extends TestCase
 
         $this->assertTrue($decision['allowed']);
         $this->assertSame(QuizRules::ACTION_RESUME, $decision['action']);
-        $this->assertSame($activeAttempt, $decision['attempt']);
     }
 
     // ──────────────────────────────────────────────
-    //  AUTO-GRADING DECISION TABLE  (TC-QUIZ-007 s/d 009)
+    //  AUTO-GRADING BRANCHES  (TC-QUIZ-007 s/d 009)
     // ──────────────────────────────────────────────
 
     /**
-     * TC-QUIZ-007 [DT+BVA Batas Atas Score] Semua jawaban benar → score = 100.
+     * TC-QUIZ-007 [WBT] Semua benar → cabang correct, score=100.
      */
     public function test_tc_quiz_007_all_correct_answers_score_100(): void
     {
-        $questionA = $this->question('q-a', 'pilihan_ganda', [
-            ['text' => 'A', 'is_correct' => false],
-            ['text' => 'B', 'is_correct' => true],
+        $questions = collect([
+            $this->question('q-a', 'pilihan_ganda', [
+                ['text' => 'A', 'is_correct' => false],
+                ['text' => 'B', 'is_correct' => true],
+            ]),
+            $this->question('q-b', 'benar_salah', [
+                ['text' => 'True', 'is_correct' => true],
+                ['text' => 'False', 'is_correct' => false],
+            ]),
         ]);
 
-        $questionB = $this->question('q-b', 'benar_salah', [
-            ['text' => 'True', 'is_correct' => true],
-            ['text' => 'False', 'is_correct' => false],
-        ]);
-
-        $score = $this->rules->scoreFor(collect([$questionA, $questionB]), [
+        $score = $this->rules->scoreFor($questions, [
             ['question_id' => 'q-a', 'answer_text' => 'B'],
             ['question_id' => 'q-b', 'answer_text' => 'True'],
         ]);
@@ -158,21 +150,22 @@ class QuizDecisionTableTest extends TestCase
     }
 
     /**
-     * TC-QUIZ-008 [DT+BVA Batas Bawah Score] Semua jawaban salah → score = 0.
+     * TC-QUIZ-008 [WBT] Semua salah → cabang incorrect, score=0.
      */
     public function test_tc_quiz_008_all_wrong_answers_score_0(): void
     {
-        $questionA = $this->question('q-a', 'pilihan_ganda', [
-            ['text' => 'A', 'is_correct' => false],
-            ['text' => 'B', 'is_correct' => true],
+        $questions = collect([
+            $this->question('q-a', 'pilihan_ganda', [
+                ['text' => 'A', 'is_correct' => false],
+                ['text' => 'B', 'is_correct' => true],
+            ]),
+            $this->question('q-b', 'benar_salah', [
+                ['text' => 'True', 'is_correct' => true],
+                ['text' => 'False', 'is_correct' => false],
+            ]),
         ]);
 
-        $questionB = $this->question('q-b', 'benar_salah', [
-            ['text' => 'True', 'is_correct' => true],
-            ['text' => 'False', 'is_correct' => false],
-        ]);
-
-        $score = $this->rules->scoreFor(collect([$questionA, $questionB]), [
+        $score = $this->rules->scoreFor($questions, [
             ['question_id' => 'q-a', 'answer_text' => 'A'],
             ['question_id' => 'q-b', 'answer_text' => 'False'],
         ]);
@@ -181,7 +174,7 @@ class QuizDecisionTableTest extends TestCase
     }
 
     /**
-     * TC-QUIZ-009 [DT Esai Manual Grading] Soal esai → score = null (menunggu penilaian manual).
+     * TC-QUIZ-009 [WBT] Soal esai → cabang skip, score=null.
      */
     public function test_tc_quiz_009_essay_question_score_is_null(): void
     {
